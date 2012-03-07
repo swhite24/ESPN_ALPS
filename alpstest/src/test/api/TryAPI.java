@@ -1,10 +1,13 @@
 package test.api;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Testing various api methods
+ * @author Steve
+ *
+ */
 
 public class TryAPI {
 
@@ -14,6 +17,7 @@ public class TryAPI {
 		String token = request.login();
 		
 		System.out.println(token);
+		
 		
 		SimpleDateFormat df = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date now = new Date();

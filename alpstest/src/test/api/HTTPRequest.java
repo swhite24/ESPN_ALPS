@@ -66,15 +66,17 @@ public class HTTPRequest {
 	}
 
 	public String get_games(String token, String start, String end) {
+		// construct JSONObject for games payload
 		JSONObject start_end = new JSONObject();
 		try {
 			start_end.put("start", start);
 			start_end.put("end", end);
 		} catch (JSONException e) {
-			System.out.println("Failed to create JSONObject.");
+			System.out.println("Failed to populate JSONObject.");
 			return null;
 		}
 
+		// construct games URL
 		String gamesURL = Constants.GAMES + "?token=" + token + "&signature="
 				+ getSignature() + "&key=" + Constants.ACCESS_KEY;
 		
@@ -126,58 +128,6 @@ public class HTTPRequest {
 		}
 		return response_builder.toString();
 	}
-
-	//
-	// public void login(String userName, String password) {
-	// JSONObject data = new JSONObject();
-	// try {
-	// data.put("username", userName);
-	// data.put("password", password);
-	// } catch (JSONException e1) {
-	// e1.printStackTrace();
-	// }
-	// String data_string = data.toString();
-	// System.out.println(data_string);
-	// // InputStream to get response
-	//
-	// // Complete login URL
-	// String loginURL = Constants.LOGIN + "?signature=" + getSignature()
-	// + "&key=" + Constants.ACCESS_KEY;
-	// System.out.println(loginURL);
-	//
-	// // Retrieve response
-	// HttpClient httpclient = new DefaultHttpClient();
-	// HttpPost httppost = new HttpPost(loginURL);
-	// InputStream response_inStream = null;
-	// try {
-	// StringEntity se = new StringEntity(data_string);
-	// se.setContentType(new BasicHeader("Content-Type",
-	// "application/json"));
-	// httppost.setEntity(se);
-	// // httppost.setHeader("Content-Type", "application/json");
-	//
-	// HttpResponse httpresponse = httpclient.execute(httppost);
-	// HttpEntity entity = httpresponse.getEntity();
-	// response_inStream = entity.getContent();
-	// } catch (Exception e) {
-	// System.out.println("Error retrieving result.");
-	// }
-	//
-	// // Read response
-	// StringBuilder response_builder = new StringBuilder();
-	// try {
-	// BufferedReader reader = new BufferedReader(new InputStreamReader(
-	// response_inStream));
-	// String response_line = null;
-	// while ((response_line = reader.readLine()) != null) {
-	// response_builder.append(response_line);
-	// }
-	// } catch (Exception e) {
-	// System.out.println("Error reading result.");
-	// }
-	//
-	// System.out.println(response_builder.toString());
-	// }
 
 	// Generate md5 hash of access key + secret + current time
 	private String getSignature() {
