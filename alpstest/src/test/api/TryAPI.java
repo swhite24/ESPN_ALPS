@@ -4,8 +4,8 @@ package test.api;
 public class TryAPI {
 
 	public static void main(String args[]) {
-		Login login = new Login();
+		HTTPRequest login = new HTTPRequest();
 		
-		login.login("swhite24", "Godfood69!");
+		login.login("testuser", "secretPassword");
 	}
 }

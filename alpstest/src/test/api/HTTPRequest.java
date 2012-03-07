@@ -6,21 +6,18 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Login {
+public class HTTPRequest {
 	// base url
 	private static final String BASE_URL = "https://api.espnalps.com/prod/login";
 
@@ -30,15 +27,15 @@ public class Login {
 
 	private MessageDigest md = null;
 
-	public Login() {
+	public HTTPRequest() {
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	// Generate md5 hash of access key + secret + current time
 	private String getSignature() {
 		int time = (int) (System.currentTimeMillis() / 1000L);
 
@@ -68,25 +65,22 @@ public class Login {
 		String data_string = data.toString();
 		System.out.println(data_string);
 		// InputStream to get response
-		InputStream response_inStream = null;
 
-		// ArrayList containing login info
-		ArrayList<NameValuePair> un_pw = new ArrayList<NameValuePair>();
-		un_pw.add(new BasicNameValuePair("username", userName));
-		un_pw.add(new BasicNameValuePair("password", password));
-
+		// Complete login URL
 		String loginURL = BASE_URL + "?signature=" + getSignature() + "&key="
 				+ ACCESS_KEY;
 		System.out.println(loginURL);
+		
+		
 		// Retrieve response
 		HttpClient httpclient = new DefaultHttpClient();
-
 		HttpPost httppost = new HttpPost(loginURL);
+		InputStream response_inStream = null;
 		try {
 			StringEntity se = new StringEntity(data_string);
 			se.setContentType(new BasicHeader("Content-Type",
 					"application/json"));
-//			httppost.setEntity(se);
+			httppost.setEntity(se);
 //			httppost.setHeader("Content-Type", "application/json");
 
 			HttpResponse httpresponse = httpclient.execute(httppost);
