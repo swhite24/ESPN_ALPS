@@ -14,5 +14,5 @@ public interface Constants {
 	
 	// account info
 	public static final String USERNAME = "swhite24";
-	public static final String PASSWORD = "Godfood69!";
+	public static final String PASSWORD = "!WVUalps";
 }

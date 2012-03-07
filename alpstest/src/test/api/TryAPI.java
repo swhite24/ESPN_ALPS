@@ -14,7 +14,7 @@ public class TryAPI {
 	public static void main(String args[]) {
 		HTTPRequest request = new HTTPRequest();
 		
-		String token = request.login();
+		String token = request.login(Constants.USERNAME, Constants.PASSWORD);
 		
 		System.out.println(token);
 		

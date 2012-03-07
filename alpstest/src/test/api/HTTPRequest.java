@@ -36,7 +36,7 @@ public class HTTPRequest {
 		}
 	}
 
-	public String login() {
+	public String login(String username, String password) {
 		// construct JSONObject for login payload
 		JSONObject un_pw = new JSONObject();
 		try {
@@ -80,9 +80,18 @@ public class HTTPRequest {
 		String gamesURL = Constants.GAMES + "?token=" + token + "&signature="
 				+ getSignature() + "&key=" + Constants.ACCESS_KEY;
 		
-		String response = http_post(gamesURL, start_end);
-		return response;
-
+		// Read response
+		JSONObject games_response_obj = null;
+		String games_response = null;
+		try {
+			games_response_obj = new JSONObject(http_post(gamesURL, start_end));
+			games_response = games_response_obj.get("response").toString();
+		} catch (JSONException e) {
+			System.out.println("Failed to extract response.");
+			return null;
+		}
+		
+		return games_response;
 	}
 
 	private String http_post(String URL, JSONObject obj) {
@@ -120,7 +129,7 @@ public class HTTPRequest {
 					response_inStream));
 			String response_line = null;
 			while ((response_line = reader.readLine()) != null) {
-				response_builder.append(response_line);
+				response_builder.append(response_line + "\n");
 			}
 		} catch (Exception e) {
 			System.out.println("Failed to read response.");
