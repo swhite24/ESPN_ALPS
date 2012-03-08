@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" 
+    android:padding="10dp">
+
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="16pt"
+        android:text="@string/login_welcome_text"/>
+    
+    <LinearLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12pt"
+            android:padding="5dp"
+            android:text="@string/login_login_text" />
+	    <EditText 
+	        android:id="@+id/login_username_et"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:inputType="text"
+	        android:maxLines="1"
+	        android:hint="@string/login_username_hint" 
+	        android:imeOptions="actionNext"/>
+	    <EditText 
+	        android:id="@+id/login_password_et"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:inputType="textPassword"
+	        android:maxLines="1" 
+	        android:hint="@string/login_password_hint"
+	        android:imeOptions="actionDone"/>
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:orientation="horizontal">
+	        <CheckBox 
+	            android:id="@+id/login_remember_cb"
+	            android:layout_width="0dp"
+	            android:layout_height="wrap_content"
+	            android:layout_weight="1"
+	            android:text="@string/login_remember_text"/>
+		    <Button 
+		        android:id="@+id/login_submit_btn"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:text="@string/login_btn_text" />
+	    </LinearLayout>
+	</LinearLayout>
+</LinearLayout>

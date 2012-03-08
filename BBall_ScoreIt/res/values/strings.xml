@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BBall_ScoreIt</string>
+    <string name="login_welcome_text">Welcome to BBall-ScoreIt!</string>
+    <string name="login_login_text">Login to begin</string>
+	<string name="login_username_hint">Username</string>
+	<string name="login_password_hint">Password</string>
+	<string name="login_btn_text">Submit</string>
+	<string name="login_remember_text">Remember Me</string>
+</resources>
