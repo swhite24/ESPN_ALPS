@@ -17,11 +17,14 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
+import android.util.Log;
 
 public class HTTPRequest extends Service {
 	private Get_Response get_response;
 	private String URL;
 	private String payload;
+	private int api_call;
+	private static final String TAG = "BBALL_SCOREIT::HTTPREQUEST";
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -37,6 +40,7 @@ public class HTTPRequest extends Service {
 			// Extract URL and Payload, then execute
 			URL = intent.getStringExtra(Constants.URL);
 			payload = intent.getStringExtra(Constants.PAYLOAD);
+			api_call = intent.getIntExtra(Constants.API_CALL, -1);
 			get_response = new Get_Response();
 			get_response.execute((Void[]) null);
 		}
@@ -45,8 +49,9 @@ public class HTTPRequest extends Service {
 	}
 
 	private void announce_results(String result) {
+		Log.d(TAG, result);
 		// on completion, announce results to calling activity
-		Intent intent = new Intent(Constants.RESULTS);
+		Intent intent = new Intent((String) API_Calls.api_map.get(api_call));
 		intent.putExtra("result", result);
 		sendBroadcast(intent);
 		stopSelf();

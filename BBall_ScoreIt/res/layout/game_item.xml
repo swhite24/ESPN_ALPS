@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" 
+    android:orientation="vertical"
+    android:padding="5dp">
+    <TextView
+        android:id="@+id/game_item_separator"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FF0000"
+        android:textColor="#000000" />
+    <TextView
+        android:id="@+id/game_item_vs_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" 
+        android:textColor="#FF0000"
+        android:textSize="10pt"/>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+        <TextView
+            android:id="@+id/game_item_location_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:textColor="#FF0000"
+            android:layout_alignParentLeft="true"/>
+        <TextView
+            android:id="@+id/game_item_time_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" 
+            android:textColor="#FF0000"
+            android:layout_alignParentRight="true"/>
+	</RelativeLayout>
+</LinearLayout>

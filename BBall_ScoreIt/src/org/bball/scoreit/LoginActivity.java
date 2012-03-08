@@ -41,12 +41,19 @@ public class LoginActivity extends Activity implements OnClickListener {
 		// unregister receiver when in background
 		unregisterReceiver(token_receiver);
 		super.onDestroy();
+	}	
+
+	@Override
+	protected void onPause() {
+		// unregister receiver when in background
+		unregisterReceiver(token_receiver);
+		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
 		// register receiver on startup
-		IntentFilter filter = new IntentFilter(Constants.RESULTS);
+		IntentFilter filter = new IntentFilter((String) API_Calls.api_map.get(0));
 		token_receiver = new TokenReceiver();
 		registerReceiver(token_receiver, filter);
 		super.onResume();
@@ -58,21 +65,41 @@ public class LoginActivity extends Activity implements OnClickListener {
 		case R.id.login_submit_btn:
 			String pw = password.getText().toString();
 			String un = username.getText().toString();
+			//api_calls.login(Constants.USERNAME, Constants.PASSWORD);
 			api_calls.login(un, pw);
 			break;
 		}
 	}
+	
+	/**
+	 * Initiates ShowGames activity with generated token.
+	 * @param token - token generated from login api method
+	 */
+	private void show_games(String token){
+		Intent i = new Intent(this, ShowGamesActivity.class);
+		i.putExtra("token", token);
+		startActivity(i);		
+	}
 
+	/**
+	 * BroadcastReceiver to receive update from HTTPRequest on
+	 * login status.  Sends generated token to ShowGames on success.
+	 * @author Steve
+	 *
+	 */
 	private class TokenReceiver extends BroadcastReceiver {
-
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			String token = null;
 			try {
+				Log.d(TAG, "Tring to extract");
+				
 				JSONObject result_obj = new JSONObject(
 						intent.getStringExtra("result"));
 				JSONObject response_obj = new JSONObject(result_obj.get(
 						"response").toString());
-				String token = response_obj.get("token").toString();
+				token = response_obj.get("token").toString();
+				show_games(token);				
 				Toast.makeText(LoginActivity.this, token, Toast.LENGTH_SHORT)
 				.show();
 			} catch (Exception e) {
@@ -81,6 +108,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 				Toast.makeText(LoginActivity.this, "Unable to login",
 						Toast.LENGTH_SHORT).show();
 			}
+
 		}
 	}
 

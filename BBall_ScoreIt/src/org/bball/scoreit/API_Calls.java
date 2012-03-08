@@ -2,6 +2,7 @@ package org.bball.scoreit;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +16,16 @@ public class API_Calls {
 
 	private MessageDigest md = null;
 	private Context context;
-
+	
+	// map of api_calls used to correctly initialize broadcast receivers
+	public static HashMap<Integer, String> api_map = init_map();	
+	private static HashMap<Integer, String> init_map(){
+		HashMap<Integer, String> temp = new HashMap<Integer, String>();
+		temp.put(0, "LOGIN");
+		temp.put(1, "GETGAMES");		
+		return temp;		
+	}
+	
 	public API_Calls(Context context) {
 		try {
 			md = MessageDigest.getInstance("MD5");
@@ -52,6 +62,7 @@ public class API_Calls {
 		Intent service_intent = new Intent(context, HTTPRequest.class);
 		service_intent.putExtra(Constants.URL, loginURL);
 		service_intent.putExtra(Constants.PAYLOAD, un_pw.toString());
+		service_intent.putExtra(Constants.API_CALL, 0);
 		context.startService(service_intent);
 	}
 
@@ -83,6 +94,7 @@ public class API_Calls {
 		Intent service_intent = new Intent(context, HTTPRequest.class);
 		service_intent.putExtra(Constants.URL, gamesURL);
 		service_intent.putExtra(Constants.PAYLOAD, start_end.toString());
+		service_intent.putExtra(Constants.API_CALL, 1);
 		context.startService(service_intent);
 	}
 
