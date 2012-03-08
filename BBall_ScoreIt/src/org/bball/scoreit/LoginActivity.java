@@ -37,13 +37,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
-	protected void onDestroy() {
-		// unregister receiver when in background
-		unregisterReceiver(token_receiver);
-		super.onDestroy();
-	}	
-
-	@Override
 	protected void onPause() {
 		// unregister receiver when in background
 		unregisterReceiver(token_receiver);
@@ -92,8 +85,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 		public void onReceive(Context context, Intent intent) {
 			String token = null;
 			try {
-				Log.d(TAG, "Tring to extract");
-				
 				JSONObject result_obj = new JSONObject(
 						intent.getStringExtra("result"));
 				JSONObject response_obj = new JSONObject(result_obj.get(

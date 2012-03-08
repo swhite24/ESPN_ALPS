@@ -37,12 +37,6 @@ public class ShowGamesActivity extends ListActivity {
 	}
 
 	@Override
-	protected void onDestroy() {
-		unregisterReceiver(games_receiver);
-		super.onDestroy();
-	}
-
-	@Override
 	protected void onPause() {
 		unregisterReceiver(games_receiver);
 		super.onPause();
