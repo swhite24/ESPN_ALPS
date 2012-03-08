@@ -3,6 +3,10 @@ package test.api;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Testing various api methods
  * @author Steve
@@ -33,6 +37,18 @@ public class TryAPI {
 		}
 		
 		String games_data = request.get_games(token, now_string, end_string);
-		System.out.println(games_data);
+		String games = null;
+		try {
+			JSONObject obj = new JSONObject(games_data);
+			games = obj.get("games").toString();
+			JSONArray arr = new JSONArray(obj.get("games").toString());
+			for (int i = 0; i < arr.length(); i++){
+				JSONObject temp = arr.getJSONObject(i);
+				System.out.println(temp.toString());
+			}
+			System.out.println("arr length: " + arr.length());
+		} catch (JSONException e) {
+			System.out.println("error");
+		}
 	}
 }
