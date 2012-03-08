@@ -17,6 +17,11 @@ public class API_Calls {
 	private MessageDigest md = null;
 	private Context context;
 	
+	public static String token = null;
+	public static void setToken(String _token){
+		token = _token;
+	}
+	
 	// map of api_calls used to correctly initialize broadcast receivers
 	public static HashMap<Integer, String> api_map = init_map();	
 	private static HashMap<Integer, String> init_map(){
@@ -25,6 +30,7 @@ public class API_Calls {
 		temp.put(1, "GETGAMES");		
 		return temp;		
 	}
+	
 	
 	public API_Calls(Context context) {
 		try {
@@ -76,7 +82,7 @@ public class API_Calls {
 	 * @param end
 	 *            - final Date
 	 */
-	public void get_games(String token, String start, String end) {
+	public void get_games(String start, String end) {
 		// construct JSONObject for games payload
 		JSONObject start_end = new JSONObject();
 		try {

@@ -48,15 +48,22 @@ public class HTTPRequest extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 
+	// on completion, announce results to calling activity
 	private void announce_results(String result) {
 		Log.d(TAG, result);
-		// on completion, announce results to calling activity
 		Intent intent = new Intent((String) API_Calls.api_map.get(api_call));
 		intent.putExtra("result", result);
 		sendBroadcast(intent);
 		stopSelf();
 	}
 
+	/**
+	 * ASyncTask which performs the API call specified by URL string extra.  If
+	 * the call requires a JSON string payload, it must be formatted prior to 
+	 * being executed.  On completion, results are broadcast to specific activity.
+	 * @author Steve
+	 *
+	 */
 	private class Get_Response extends AsyncTask<Void, Void, String> {
 
 		@Override

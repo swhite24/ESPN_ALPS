@@ -18,7 +18,7 @@ import android.util.Log;
 public class ShowGamesActivity extends ListActivity {
 
 	private List<String> games;
-	private String token;
+	//private String token;
 	private GamesReceiver games_receiver;
 	private static final String TAG = "BBALL_SCOREIT::SHOWGAMESACTIVITY";
 
@@ -28,10 +28,6 @@ public class ShowGamesActivity extends ListActivity {
 		Log.d(TAG, getClass() + " oncreate");
 		setContentView(R.layout.list_games);
 
-		Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			token = extras.getString("token");
-		}
 		games = new ArrayList<String>();
 		getGames();
 	}
@@ -64,7 +60,7 @@ public class ShowGamesActivity extends ListActivity {
 		initial.set(Calendar.DAY_OF_YEAR, initial.get(Calendar.DAY_OF_YEAR) - 7);
 		end.set(Calendar.DAY_OF_YEAR, end.get(Calendar.DAY_OF_YEAR) + 30);
 
-		api_calls.get_games(token, Constants.df.format(initial.getTime()),
+		api_calls.get_games(Constants.df.format(initial.getTime()),
 				Constants.df.format(end.getTime()));
 	}
 	

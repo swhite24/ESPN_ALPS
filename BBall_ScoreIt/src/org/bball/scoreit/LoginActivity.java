@@ -3,6 +3,8 @@ package org.bball.scoreit;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +23,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 	private EditText password;
 	private API_Calls api_calls;
 	private TokenReceiver token_receiver;
+	private ProgressDialog login_dialog;
+	static final int LOGIN = 0;
 	private static final String TAG = "BBALL_SCOREIT::LOGINACTIVITY";
 
 	@Override
@@ -46,7 +50,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 	@Override
 	protected void onResume() {
 		// register receiver on startup
-		IntentFilter filter = new IntentFilter((String) API_Calls.api_map.get(0));
+		IntentFilter filter = new IntentFilter(
+				(String) API_Calls.api_map.get(0));
 		token_receiver = new TokenReceiver();
 		registerReceiver(token_receiver, filter);
 		super.onResume();
@@ -58,31 +63,50 @@ public class LoginActivity extends Activity implements OnClickListener {
 		case R.id.login_submit_btn:
 			String pw = password.getText().toString();
 			String un = username.getText().toString();
-			//api_calls.login(Constants.USERNAME, Constants.PASSWORD);
+			showDialog(LOGIN);
+			// api_calls.login(Constants.USERNAME, Constants.PASSWORD);
 			api_calls.login(un, pw);
 			break;
 		}
 	}
-	
-	/**
-	 * Initiates ShowGames activity with generated token.
-	 * @param token - token generated from login api method
-	 */
-	private void show_games(String token){
-		Intent i = new Intent(this, ShowGamesActivity.class);
-		i.putExtra("token", token);
-		startActivity(i);		
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case LOGIN:
+			login_dialog = new ProgressDialog(this,
+					ProgressDialog.STYLE_SPINNER);
+			login_dialog.setMessage("Logging in....");
+			login_dialog.setCancelable(false);
+			return login_dialog;
+		default:
+			return null;
+		}
 	}
 
 	/**
-	 * BroadcastReceiver to receive update from HTTPRequest on
-	 * login status.  Sends generated token to ShowGames on success.
+	 * Initiates ShowGames activity with generated token.
+	 * 
+	 * @param token
+	 *            - token generated from login api method
+	 */
+	private void show_games() {
+		Intent i = new Intent(this, ShowGamesActivity.class);
+		startActivity(i);
+	}
+
+	/**
+	 * BroadcastReceiver to receive update from HTTPRequest on login status.
+	 * Sends generated token to ShowGames on success.
+	 * 
 	 * @author Steve
-	 *
+	 * 
 	 */
 	private class TokenReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			// dismiss logging in dialog
+			dismissDialog(LOGIN);
 			String token = null;
 			try {
 				JSONObject result_obj = new JSONObject(
@@ -90,13 +114,13 @@ public class LoginActivity extends Activity implements OnClickListener {
 				JSONObject response_obj = new JSONObject(result_obj.get(
 						"response").toString());
 				token = response_obj.get("token").toString();
-				show_games(token);				
-				Toast.makeText(LoginActivity.this, token, Toast.LENGTH_SHORT)
-				.show();
+				// update token in API_Calls and show list of games
+				API_Calls.setToken(token);
+				show_games();
 			} catch (Exception e) {
 				Log.d(TAG, "Unable to extract token.");
 				password.setText("");
-				Toast.makeText(LoginActivity.this, "Unable to login",
+				Toast.makeText(LoginActivity.this, "Invalid username or password",
 						Toast.LENGTH_SHORT).show();
 			}
 

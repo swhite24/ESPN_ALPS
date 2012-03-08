@@ -8,13 +8,13 @@
         android:id="@+id/game_item_separator"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="#FF0000"
+        android:background="#FFFFFF"
         android:textColor="#000000" />
     <TextView
         android:id="@+id/game_item_vs_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" 
-        android:textColor="#FF0000"
+        android:textColor="#FFFFFF"
         android:textSize="10pt"/>
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -25,13 +25,13 @@
             android:id="@+id/game_item_location_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" 
-            android:textColor="#FF0000"
+            android:textColor="#FFFFFF"
             android:layout_alignParentLeft="true"/>
         <TextView
             android:id="@+id/game_item_time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" 
-            android:textColor="#FF0000"
+            android:textColor="#FFFFFF"
             android:layout_alignParentRight="true"/>
 	</RelativeLayout>
 </LinearLayout>
