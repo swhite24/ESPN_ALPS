@@ -38,17 +38,22 @@ public class TryAPI {
 		
 		String games_data = request.get_games(token, now_string, end_string);
 		String games = null;
+		String game_id = null;
 		try {
 			JSONObject obj = new JSONObject(games_data);
 			games = obj.get("games").toString();
-			JSONArray arr = new JSONArray(obj.get("games").toString());
+			JSONArray arr = new JSONArray(games);
 			for (int i = 0; i < arr.length(); i++){
 				JSONObject temp = arr.getJSONObject(i);
+				game_id = temp.get("gameId").toString();
 				System.out.println(temp.toString());
 			}
 			System.out.println("arr length: " + arr.length());
 		} catch (JSONException e) {
 			System.out.println("error");
 		}
+		
+		String game_data = request.get_game_data(token, game_id);
+		System.out.println(game_data);
 	}
 }

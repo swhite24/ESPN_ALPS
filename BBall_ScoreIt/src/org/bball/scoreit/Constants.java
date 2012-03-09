@@ -28,6 +28,7 @@ public interface Constants {
 	public static final String PAYLOAD = "PAYLOAD";
 	public static final String URL = "URL";
 	public static final String API_CALL = "API_CALL";
+	public static final String TYPE = "TYPE";
 	
 	
 	// account info

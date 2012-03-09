@@ -11,6 +11,7 @@ public interface Constants {
 	// URLS for specific methods
 	public static final String LOGIN = "https://api.espnalps.com/login";
 	public static final String GAMES = "http://api.espnalps.com/v0/cbb/games";
+	public static final String GAME_DATA = "http://api.espnalps.com/v0/cbb/getGameData";
 	
 	// account info
 	public static final String USERNAME = "swhite24";

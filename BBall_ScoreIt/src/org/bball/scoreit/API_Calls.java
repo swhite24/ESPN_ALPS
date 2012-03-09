@@ -69,6 +69,7 @@ public class API_Calls {
 		service_intent.putExtra(Constants.URL, loginURL);
 		service_intent.putExtra(Constants.PAYLOAD, un_pw.toString());
 		service_intent.putExtra(Constants.API_CALL, 0);
+		service_intent.putExtra(Constants.TYPE, 0);
 		context.startService(service_intent);
 	}
 
@@ -101,6 +102,7 @@ public class API_Calls {
 		service_intent.putExtra(Constants.URL, gamesURL);
 		service_intent.putExtra(Constants.PAYLOAD, start_end.toString());
 		service_intent.putExtra(Constants.API_CALL, 1);
+		service_intent.putExtra(Constants.TYPE, 0);
 		context.startService(service_intent);
 	}
 

@@ -25,6 +25,11 @@
             android:label="Current Games" 
             android:screenOrientation="portrait">            
         </activity>
+        <activity 
+            android:name=".ScoreGameActivity"
+            android:label="Score Game"
+            android:screenOrientation="landscape">            
+        </activity>
         <service 
             android:enabled="true"
             android:name=".HTTPRequest">            

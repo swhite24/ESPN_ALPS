@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -27,8 +28,10 @@ public class HTTPRequest {
 	// base url
 
 	private MessageDigest md = null;
+	private String sig = null;
 
 	public HTTPRequest() {
+		sig = getSignature();
 		try {
 			md = MessageDigest.getInstance("MD5");
 		} catch (NoSuchAlgorithmException e) {
@@ -79,7 +82,7 @@ public class HTTPRequest {
 		// construct games URL
 		String gamesURL = Constants.GAMES + "?token=" + token + "&signature="
 				+ getSignature() + "&key=" + Constants.ACCESS_KEY;
-		
+
 		// Read response
 		JSONObject games_response_obj = null;
 		String games_response = null;
@@ -90,9 +93,64 @@ public class HTTPRequest {
 			System.out.println("Failed to extract response.");
 			return null;
 		}
-		
+
 		return games_response;
 	}
+
+	public String get_game_data(String token, String gameId) {
+		 String dataURL = Constants.GAME_DATA + "/" + gameId + "?token=" +
+		 token
+		 + "&signature=" + getSignature() + "&key="
+		 + Constants.ACCESS_KEY;
+	//	String dataURL = "http://api.espnalps.com/v0/cbb/getGameData/4f46c113e4b079ad546850ae?token=281cd2a897ef62da175a3cb59597f800&signature=bd3442195eb3b763b2496c3943d93b09&key=96a55a98a49c7f4f795eee184d20414eb8a95178";
+		System.out.println(dataURL);
+		JSONObject response_obj = null;
+		String response = null;
+
+		try {
+			response_obj = new JSONObject(http_get(dataURL, null));
+			response = response_obj.toString();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return response;
+	}
+	
+	private String http_get(String URL, JSONObject obj){
+		HttpClient client = new DefaultHttpClient();
+		HttpGet get = new HttpGet(URL);
+		InputStream response_inStream = null;
+
+
+		// Retrieve response
+		try {
+			HttpResponse response = client.execute(get);
+			HttpEntity entity = response.getEntity();
+			response_inStream = entity.getContent();
+		} catch (Exception e) {
+			System.out.println("Failed to retrieve response.");
+			return null;
+		}
+
+		// Read response
+		StringBuilder response_builder = new StringBuilder();
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					response_inStream));
+			String response_line = null;
+			while ((response_line = reader.readLine()) != null) {
+				response_builder.append(response_line + "\n");
+			}
+		} catch (Exception e) {
+			System.out.println("Failed to read response.");
+			return null;
+		}
+		return response_builder.toString();
+	}
+
+
 
 	private String http_post(String URL, JSONObject obj) {
 		HttpClient client = new DefaultHttpClient();
@@ -106,6 +164,7 @@ public class HTTPRequest {
 				se = new StringEntity(obj.toString());
 				se.setContentType(new BasicHeader("Content-Type",
 						"application/json"));
+				post.setEntity(se);
 			} catch (UnsupportedEncodingException e) {
 				System.out.println("Failed to build StringEntity.");
 			}
@@ -113,7 +172,6 @@ public class HTTPRequest {
 
 		// Retrieve response
 		try {
-			post.setEntity(se);
 			HttpResponse response = client.execute(post);
 			HttpEntity entity = response.getEntity();
 			response_inStream = entity.getContent();

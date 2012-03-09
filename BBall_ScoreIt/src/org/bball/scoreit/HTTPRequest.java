@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -23,7 +24,7 @@ public class HTTPRequest extends Service {
 	private Get_Response get_response;
 	private String URL;
 	private String payload;
-	private int api_call;
+	private int api_call, type;
 	private static final String TAG = "BBALL_SCOREIT::HTTPREQUEST";
 
 	@Override
@@ -41,6 +42,7 @@ public class HTTPRequest extends Service {
 			URL = intent.getStringExtra(Constants.URL);
 			payload = intent.getStringExtra(Constants.PAYLOAD);
 			api_call = intent.getIntExtra(Constants.API_CALL, -1);
+			type = intent.getIntExtra(Constants.TYPE, -1);
 			get_response = new Get_Response();
 			get_response.execute((Void[]) null);
 		}
@@ -58,16 +60,35 @@ public class HTTPRequest extends Service {
 	}
 
 	/**
-	 * ASyncTask which performs the API call specified by URL string extra.  If
-	 * the call requires a JSON string payload, it must be formatted prior to 
-	 * being executed.  On completion, results are broadcast to specific activity.
+	 * ASyncTask which performs the API call specified by URL string extra. If
+	 * the call requires a JSON string payload, it must be formatted prior to
+	 * being executed. On completion, results are broadcast to specific
+	 * activity.
+	 * 
 	 * @author Steve
-	 *
+	 * 
 	 */
 	private class Get_Response extends AsyncTask<Void, Void, String> {
 
 		@Override
 		protected String doInBackground(Void... params) {
+			switch (type) {
+			case 0:
+				return http_post();
+			case 1:
+				return http_get();
+			default:
+				return null;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			// announce results
+			announce_results(result);
+		}
+
+		private String http_post() {
 			HttpClient client = new DefaultHttpClient();
 			HttpPost post = new HttpPost(URL);
 			InputStream response_inStream = null;
@@ -111,10 +132,35 @@ public class HTTPRequest extends Service {
 			return response_builder.toString();
 		}
 
-		@Override
-		protected void onPostExecute(String result) {
-			// announce results
-			announce_results(result);
+		private String http_get() {
+			HttpClient client = new DefaultHttpClient();
+			HttpGet get = new HttpGet(URL);
+			InputStream response_inStream = null;
+
+			// Retrieve response
+			try {
+				HttpResponse response = client.execute(get);
+				HttpEntity entity = response.getEntity();
+				response_inStream = entity.getContent();
+			} catch (Exception e) {
+				System.out.println("Failed to retrieve response.");
+				return null;
+			}
+
+			// Read response
+			StringBuilder response_builder = new StringBuilder();
+			try {
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(response_inStream));
+				String response_line = null;
+				while ((response_line = reader.readLine()) != null) {
+					response_builder.append(response_line + "\n");
+				}
+			} catch (Exception e) {
+				System.out.println("Failed to read response.");
+				return null;
+			}
+			return response_builder.toString();
 		}
 
 	}

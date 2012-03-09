@@ -14,6 +14,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
 
 public class ShowGamesActivity extends ListActivity {
 
@@ -45,6 +47,14 @@ public class ShowGamesActivity extends ListActivity {
 		games_receiver = new GamesReceiver();
 		registerReceiver(games_receiver, filter);
 		super.onResume();
+	}
+	
+	
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		startActivity(new Intent(this, ScoreGameActivity.class));
 	}
 
 	/**
