@@ -19,10 +19,9 @@ import android.widget.ListView;
 
 public class ShowGamesActivity extends ListActivity {
 
-	private List<String> games;
-	//private String token;
-	private GamesReceiver games_receiver;
 	private static final String TAG = "BBALL_SCOREIT::SHOWGAMESACTIVITY";
+	private List<String> games;
+	private GamesReceiver games_receiver;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +47,19 @@ public class ShowGamesActivity extends ListActivity {
 		registerReceiver(games_receiver, filter);
 		super.onResume();
 	}
-	
-	
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
-		startActivity(new Intent(this, ScoreGameActivity.class));
+		String game_data = games.get(position);
+		try {
+			Intent score_game = new Intent(this, ScoreGameActivity.class);
+			// attach JSON string to intent
+			score_game.putExtra(Constants.GAME_DATA, game_data);
+			startActivity(score_game);
+		} catch (Exception e) {
+			Log.e(TAG, "Couldn't create game_obj");
+		}
 	}
 
 	/**
@@ -64,7 +69,7 @@ public class ShowGamesActivity extends ListActivity {
 	private void getGames() {
 		Log.d(TAG, "Getting games");
 		API_Calls api_calls = new API_Calls(this);
-		
+
 		Calendar initial = Calendar.getInstance();
 		Calendar end = Calendar.getInstance();
 		initial.set(Calendar.DAY_OF_YEAR, initial.get(Calendar.DAY_OF_YEAR) - 7);
@@ -73,21 +78,22 @@ public class ShowGamesActivity extends ListActivity {
 		api_calls.get_games(Constants.df.format(initial.getTime()),
 				Constants.df.format(end.getTime()));
 	}
-	
+
 	/**
-	 * Fills ListView with game data 
+	 * Fills ListView with game data
 	 */
-	private void setAdapter(){
-		GameAdapter game_adapter = new GameAdapter(this,
-				R.layout.game_item, games);
+	private void setAdapter() {
+		GameAdapter game_adapter = new GameAdapter(this, R.layout.game_item,
+				games);
 		setListAdapter(game_adapter);
 	}
 
 	/**
-	 * BroadcastReceiver to receive list of games from Games API method.
-	 * Calls setAdapter() on success.
+	 * BroadcastReceiver to receive list of games from Games API method. Calls
+	 * setAdapter() on success.
+	 * 
 	 * @author Steve
-	 *
+	 * 
 	 */
 	private class GamesReceiver extends BroadcastReceiver {
 		@Override

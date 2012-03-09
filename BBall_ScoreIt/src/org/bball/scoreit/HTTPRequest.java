@@ -40,9 +40,12 @@ public class HTTPRequest extends Service {
 
 			// Extract URL and Payload, then execute
 			URL = intent.getStringExtra(Constants.URL);
-			payload = intent.getStringExtra(Constants.PAYLOAD);
 			api_call = intent.getIntExtra(Constants.API_CALL, -1);
 			type = intent.getIntExtra(Constants.TYPE, -1);
+			
+			if (type == 0) {
+				payload = intent.getStringExtra(Constants.PAYLOAD);
+			}
 			get_response = new Get_Response();
 			get_response.execute((Void[]) null);
 		}
@@ -52,7 +55,7 @@ public class HTTPRequest extends Service {
 
 	// on completion, announce results to calling activity
 	private void announce_results(String result) {
-		Log.d(TAG, result);
+		Log.d(TAG, "Broadcasting result to: " + API_Calls.api_map.get(api_call));
 		Intent intent = new Intent((String) API_Calls.api_map.get(api_call));
 		intent.putExtra("result", result);
 		sendBroadcast(intent);
@@ -87,7 +90,10 @@ public class HTTPRequest extends Service {
 			// announce results
 			announce_results(result);
 		}
-
+		/**
+		 * Executes an HttpPost with given URL and payload
+		 * @return - String containing response from server
+		 */
 		private String http_post() {
 			HttpClient client = new DefaultHttpClient();
 			HttpPost post = new HttpPost(URL);
@@ -131,7 +137,10 @@ public class HTTPRequest extends Service {
 			}
 			return response_builder.toString();
 		}
-
+		/**
+		 * Executes an HttpGet at given URL
+		 * @return - String containing response from server
+		 */
 		private String http_get() {
 			HttpClient client = new DefaultHttpClient();
 			HttpGet get = new HttpGet(URL);
@@ -160,7 +169,9 @@ public class HTTPRequest extends Service {
 				System.out.println("Failed to read response.");
 				return null;
 			}
+			Log.d(TAG, "Response length: " + response_builder.toString().length());
 			return response_builder.toString();
+			
 		}
 
 	}

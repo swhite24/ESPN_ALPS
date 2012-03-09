@@ -23,7 +23,18 @@ public final class R {
         public static final int login_remember_cb=0x7f050006;
         public static final int login_submit_btn=0x7f050007;
         public static final int login_username_et=0x7f050004;
-        public static final int score_game_court=0x7f050008;
+        public static final int score_game_away_1=0x7f050008;
+        public static final int score_game_away_2=0x7f050009;
+        public static final int score_game_away_3=0x7f05000a;
+        public static final int score_game_away_4=0x7f05000b;
+        public static final int score_game_away_5=0x7f05000c;
+        public static final int score_game_court=0x7f05000e;
+        public static final int score_game_home_1=0x7f05000f;
+        public static final int score_game_home_2=0x7f050010;
+        public static final int score_game_home_3=0x7f050011;
+        public static final int score_game_home_4=0x7f050012;
+        public static final int score_game_home_5=0x7f050013;
+        public static final int score_game_team_txt=0x7f05000d;
     }
     public static final class layout {
         public static final int game_item=0x7f030000;

@@ -16,22 +16,23 @@ public class API_Calls {
 
 	private MessageDigest md = null;
 	private Context context;
-	
 	public static String token = null;
-	public static void setToken(String _token){
+
+	public static void setToken(String _token) {
 		token = _token;
 	}
-	
+
 	// map of api_calls used to correctly initialize broadcast receivers
-	public static HashMap<Integer, String> api_map = init_map();	
-	private static HashMap<Integer, String> init_map(){
+	public static HashMap<Integer, String> api_map = init_map();
+
+	private static HashMap<Integer, String> init_map() {
 		HashMap<Integer, String> temp = new HashMap<Integer, String>();
 		temp.put(0, "LOGIN");
-		temp.put(1, "GETGAMES");		
-		return temp;		
+		temp.put(1, "GETGAMES");
+		temp.put(2, "GAMEDATA");
+		return temp;
 	}
-	
-	
+
 	public API_Calls(Context context) {
 		try {
 			md = MessageDigest.getInstance("MD5");
@@ -42,8 +43,8 @@ public class API_Calls {
 	}
 
 	/**
-	 * Logs into system, starting service to retrieve valid token. Token viable for 
-	 * 5 minutes and is used in all subsequent API calls.
+	 * Logs into system, starting service to retrieve valid token. Token viable
+	 * for 5 minutes and is used in all subsequent API calls.
 	 * 
 	 * @param username
 	 *            - username registered espnalps.com
@@ -76,8 +77,6 @@ public class API_Calls {
 	/**
 	 * Gets list of all games over the time interval start to end.
 	 * 
-	 * @param token
-	 *            - token generated from login method
 	 * @param start
 	 *            - initial Date
 	 * @param end
@@ -103,6 +102,19 @@ public class API_Calls {
 		service_intent.putExtra(Constants.PAYLOAD, start_end.toString());
 		service_intent.putExtra(Constants.API_CALL, 1);
 		service_intent.putExtra(Constants.TYPE, 0);
+		context.startService(service_intent);
+	}
+
+	public void getGameData(String gameId) {
+		// Construct URL
+		String gameDataURL = Constants.GET_GAME_DATA + "/" + gameId + "?token="
+				+ token + "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.URL, gameDataURL);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.TYPE, 1);
 		context.startService(service_intent);
 	}
 

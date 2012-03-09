@@ -87,8 +87,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 	/**
 	 * Initiates ShowGames activity with generated token.
 	 * 
-	 * @param token
-	 *            - token generated from login api method
 	 */
 	private void show_games() {
 		Intent i = new Intent(this, ShowGamesActivity.class);
