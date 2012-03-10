@@ -64,8 +64,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 			String pw = password.getText().toString();
 			String un = username.getText().toString();
 			showDialog(LOGIN);
-			// api_calls.login(Constants.USERNAME, Constants.PASSWORD);
-			api_calls.login(un, pw);
+			 api_calls.login(Constants.USERNAME, Constants.PASSWORD);
+			//api_calls.login(un, pw);
 			break;
 		}
 	}

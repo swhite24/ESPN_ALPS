@@ -24,7 +24,7 @@ public class ScoreGameActivity extends Activity {
 	private Team home_team, away_team;
 	private TextView away1, away2, away3, away4, away5;
 	private TextView home1, home2, home3, home4, home5;
-	private TextView team_text;
+	private TextView away_tv, home_tv;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +44,8 @@ public class ScoreGameActivity extends Activity {
 		home4 = (TextView) findViewById(R.id.score_game_home_4);
 		home5 = (TextView) findViewById(R.id.score_game_home_5);
 
-		team_text = (TextView) findViewById(R.id.score_game_team_txt);
+		away_tv = (TextView) findViewById(R.id.score_game_away_team_tv);
+		home_tv = (TextView) findViewById(R.id.score_game_home_team_tv);
 
 		api_calls = new API_Calls(this);
 
@@ -87,12 +88,14 @@ public class ScoreGameActivity extends Activity {
 			return null;
 		}
 	}
+
 	/**
-	 * Extracts team info from gameData String and constructs
-	 * home_team and away_team. Each team populates its respective
-	 * list of players.  Once teams are constructed fills TextViews of
-	 * layout with corresponding values. 
-	 * @param gameData - JSON formatted string containing game information.
+	 * Extracts team info from gameData String and constructs home_team and
+	 * away_team. Each team populates its respective list of players. Once teams
+	 * are constructed fills TextViews of layout with corresponding values.
+	 * 
+	 * @param gameData
+	 *            - JSON formatted string containing game information.
 	 */
 	private void populateFields(String gameData) {
 		try {
@@ -102,21 +105,42 @@ public class ScoreGameActivity extends Activity {
 
 			home_team = new Team(game_obj.get("homeTeam").toString());
 			away_team = new Team(game_obj.get("awayTeam").toString());
-			
-			team_text.setText(away_team.getName() + " at "
-					+ home_team.getName());
 
-			away1.setText("" + away_team.get_player_at(1).getJersey_number());
-			away2.setText("" + away_team.get_player_at(2).getJersey_number());
-			away3.setText("" + away_team.get_player_at(3).getJersey_number());
-			away4.setText("" + away_team.get_player_at(4).getJersey_number());
-			away5.setText("" + away_team.get_player_at(5).getJersey_number());
+			away_tv.setText("" + away_team.getName());
+			// put shorted player name + number for each away player
+			away1.setText(away_team.get_player_at(1).getLast_name()
+					.substring(0, 5)
+					+ "\n" + away_team.get_player_at(1).getJersey_number());
+			away2.setText(away_team.get_player_at(2).getLast_name()
+					.substring(0, 5)
+					+ "\n" + away_team.get_player_at(2).getJersey_number());
+			away3.setText(away_team.get_player_at(3).getLast_name()
+					.substring(0, 5)
+					+ "\n" + away_team.get_player_at(3).getJersey_number());
+			away4.setText(away_team.get_player_at(4).getLast_name()
+					.substring(0, 5)
+					+ "\n" + away_team.get_player_at(4).getJersey_number());
+			away5.setText(away_team.get_player_at(5).getLast_name()
+					.substring(0, 5)
+					+ "\n" + away_team.get_player_at(5).getJersey_number());
 
-			home1.setText("" + home_team.get_player_at(1).getJersey_number());
-			home2.setText("" + home_team.get_player_at(2).getJersey_number());
-			home3.setText("" + home_team.get_player_at(3).getJersey_number());
-			home4.setText("" + home_team.get_player_at(4).getJersey_number());
-			home5.setText("" + home_team.get_player_at(5).getJersey_number());
+			home_tv.setText("" + home_team.getName());
+			// put shorted player name + number for each home player
+			home1.setText(home_team.get_player_at(1).getLast_name()
+					.substring(0, 5)
+					+ "\n" + home_team.get_player_at(1).getJersey_number());
+			home2.setText(home_team.get_player_at(2).getLast_name()
+					.substring(0, 5)
+					+ "\n" + home_team.get_player_at(2).getJersey_number());
+			home3.setText(home_team.get_player_at(3).getLast_name()
+					.substring(0, 5)
+					+ "\n" + home_team.get_player_at(3).getJersey_number());
+			home4.setText(home_team.get_player_at(4).getLast_name()
+					.substring(0, 5)
+					+ "\n" + home_team.get_player_at(4).getJersey_number());
+			home5.setText(home_team.get_player_at(5).getLast_name()
+					.substring(0, 5)
+					+ "\n" + home_team.get_player_at(5).getJersey_number());
 
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to populate game fields");
@@ -124,10 +148,11 @@ public class ScoreGameActivity extends Activity {
 	}
 
 	/**
-	 * BroadcastReceiver which receives response string HTTPRequest.
-	 * Populates views of layout.
+	 * BroadcastReceiver which receives response string HTTPRequest. Populates
+	 * views of layout.
+	 * 
 	 * @author Steve
-	 *
+	 * 
 	 */
 	private class GenericReceiver extends BroadcastReceiver {
 

@@ -48,12 +48,17 @@
 	            android:layout_width="0dp"
 	            android:layout_height="wrap_content"
 	            android:layout_weight="1"
-	            android:text="@string/login_remember_text"/>
+	            android:text="@string/login_remember_text" 
+	            android:typeface="monospace" 
+	            android:textColor="#FFFFFF"/>
 		    <Button 
 		        android:id="@+id/login_submit_btn"
 		        android:layout_width="0dp"
 		        android:layout_height="wrap_content"
 		        android:layout_weight="1"
+		        android:background="@drawable/submit_btn"
+		        android:textColor="#FFFFFF"
+		        android:typeface="monospace"
 		        android:text="@string/login_btn_text" />
 	    </LinearLayout>
 	</LinearLayout>

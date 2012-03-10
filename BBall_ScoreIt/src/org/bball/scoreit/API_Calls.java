@@ -2,6 +2,7 @@ package org.bball.scoreit;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import org.json.JSONException;
@@ -20,6 +21,12 @@ public class API_Calls {
 
 	public static void setToken(String _token) {
 		token = _token;
+	}
+
+	public static String game_id = null;
+
+	public static void setGameId(String gameId) {
+		game_id = gameId;
 	}
 
 	// map of api_calls used to correctly initialize broadcast receivers
@@ -105,7 +112,14 @@ public class API_Calls {
 		context.startService(service_intent);
 	}
 
+	/**
+	 * Get game data for game gameId
+	 * 
+	 * @param gameId
+	 *            - string containing gameId of game to get data for
+	 */
 	public void getGameData(String gameId) {
+		setGameId(gameId);
 		// Construct URL
 		String gameDataURL = Constants.GET_GAME_DATA + "/" + gameId + "?token="
 				+ token + "&signature=" + getSignature() + "&key="
@@ -115,6 +129,47 @@ public class API_Calls {
 		service_intent.putExtra(Constants.URL, gameDataURL);
 		service_intent.putExtra(Constants.API_CALL, 2);
 		service_intent.putExtra(Constants.TYPE, 1);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Sets up starting rosters for each team once game setup is complete
+	 * 
+	 * @param away_on_court
+	 *            - String array containing playerId's of players on court for
+	 *            away team
+	 * @param home_on_court
+	 *            - String array containing playerId's of players on court for
+	 *            home team
+	 */
+	public void setGameData(String[] away_on_court, String[] home_on_court) {
+		JSONObject game_data_payload = new JSONObject();
+		try {
+			Calendar current = Calendar.getInstance();
+			game_data_payload.put("time",
+					Constants.df.format(current.getTime()));
+
+			JSONObject away_roster = new JSONObject();
+			away_roster.put("onField", away_on_court);
+
+			JSONObject home_roster = new JSONObject();
+			home_roster.put("onField", home_on_court);
+
+			game_data_payload.put("homeTeam", home_roster);
+			game_data_payload.put("awayTeam", away_roster);
+		} catch (Exception e) {
+			Log.e(TAG, "Failed to construct setGameData payload.");
+		}
+
+		String setDataURL = Constants.SET_GAME_DATA + "/" + game_id + "?token="
+				+ token + "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+		
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.URL, setDataURL);
+		service_intent.putExtra(Constants.PAYLOAD, game_data_payload.toString());
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.API_CALL, 0);
 		context.startService(service_intent);
 	}
 
