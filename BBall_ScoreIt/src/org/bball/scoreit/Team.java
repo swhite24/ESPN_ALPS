@@ -44,6 +44,10 @@ public class Team {
 		return players.get(loc);
 	}
 
+	public List<Player> getPlayers() {
+		return players;
+	}
+
 	public String getId() {
 		return id;
 	}

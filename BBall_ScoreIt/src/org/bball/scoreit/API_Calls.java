@@ -37,6 +37,7 @@ public class API_Calls {
 		temp.put(0, "LOGIN");
 		temp.put(1, "GETGAMES");
 		temp.put(2, "GAMEDATA");
+		temp.put(3, "SETGAMEDATA");
 		return temp;
 	}
 
@@ -129,6 +130,7 @@ public class API_Calls {
 		service_intent.putExtra(Constants.URL, gameDataURL);
 		service_intent.putExtra(Constants.API_CALL, 2);
 		service_intent.putExtra(Constants.TYPE, 1);
+		service_intent.putExtra(Constants.METHOD_ID, 0);
 		context.startService(service_intent);
 	}
 
@@ -169,7 +171,8 @@ public class API_Calls {
 		service_intent.putExtra(Constants.URL, setDataURL);
 		service_intent.putExtra(Constants.PAYLOAD, game_data_payload.toString());
 		service_intent.putExtra(Constants.API_CALL, 2);
-		service_intent.putExtra(Constants.API_CALL, 0);
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.METHOD_ID, 1);
 		context.startService(service_intent);
 	}
 

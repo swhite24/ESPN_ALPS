@@ -33,6 +33,7 @@ public interface Constants {
 	public static final String API_CALL = "API_CALL";
 	public static final String TYPE = "TYPE";
 	public static final String GAME_DATA = "GAME_DATA";
+	public static final String METHOD_ID = "METHOD_ID";
 
 	// account info
 	public static final String USERNAME = "swhite24";

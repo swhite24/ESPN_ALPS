@@ -24,7 +24,7 @@ public class HTTPRequest extends Service {
 	private Get_Response get_response;
 	private String URL;
 	private String payload;
-	private int api_call, type;
+	private int api_call, type, method_id;
 	private static final String TAG = "BBALL_SCOREIT::HTTPREQUEST";
 
 	@Override
@@ -42,7 +42,7 @@ public class HTTPRequest extends Service {
 			URL = intent.getStringExtra(Constants.URL);
 			api_call = intent.getIntExtra(Constants.API_CALL, -1);
 			type = intent.getIntExtra(Constants.TYPE, -1);
-			
+			method_id = intent.getIntExtra(Constants.METHOD_ID, -1);
 			if (type == 0) {
 				payload = intent.getStringExtra(Constants.PAYLOAD);
 			}
@@ -58,6 +58,7 @@ public class HTTPRequest extends Service {
 		Log.d(TAG, "Broadcasting result to: " + API_Calls.api_map.get(api_call));
 		Intent intent = new Intent((String) API_Calls.api_map.get(api_call));
 		intent.putExtra("result", result);
+		intent.putExtra(Constants.METHOD_ID, method_id);
 		sendBroadcast(intent);
 		stopSelf();
 	}
