@@ -25,6 +25,7 @@ public class ScoreGameActivity extends Activity {
 	private static final int SUBMIT_GAME_DATA = 1;
 	private static final int SELECT_AWAY_STARTERS = 2;
 	private static final int SELECT_HOME_STARTERS = 3;
+	private static final int PLAYER_ACTION = 10;
 	private GenericReceiver generic_receiver;
 	private ProgressDialog progress_dialog;
 	private AlertDialog alert_dialog;
@@ -34,9 +35,9 @@ public class ScoreGameActivity extends Activity {
 	private TextView away1, away2, away3, away4, away5;
 	private TextView home1, home2, home3, home4, home5;
 	private TextView away_tv, home_tv;
-	private CharSequence[] away_players, home_players;
+	private CharSequence[] players;
 	private String[] away_starters, home_starters;
-	private boolean[] away_checked, home_checked;
+	private boolean[] checked;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +107,9 @@ public class ScoreGameActivity extends Activity {
 			// Dialog allowing users to select starters for away team
 		case SELECT_AWAY_STARTERS:
 			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Starters for " + away_team.getName())
-					.setMultiChoiceItems(away_players, away_checked,
-							new selection_click_handler())
+					.setTitle("5 more starters for " + away_team.getName())
+					.setMultiChoiceItems(players, checked,
+							new Starter_Select(away_team.getName()))
 					.setPositiveButton("Finished", new OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
 							switch (which) {
@@ -122,9 +123,9 @@ public class ScoreGameActivity extends Activity {
 			// Dialog allowing user to select starters for home team
 		case SELECT_HOME_STARTERS:
 			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Starters for " + home_team.getName())
-					.setMultiChoiceItems(home_players, home_checked,
-							new selection_click_handler())
+					.setTitle("5 more starters for " + home_team.getName())
+					.setMultiChoiceItems(players, checked,
+							new Starter_Select(home_team.getName()))
 					.setPositiveButton("Finished", new OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int which) {
@@ -136,15 +137,46 @@ public class ScoreGameActivity extends Activity {
 						}
 					}).create();
 			return alert_dialog;
+			// Dialog for player action
+		case PLAYER_ACTION:
+			return null;
 		default:
 			return null;
 		}
 	}
 
-	private class selection_click_handler implements
+	/**
+	 * Dialog ClickListener for updating title when selecting team starters.
+	 * 
+	 * @author Steve
+	 * 
+	 */
+	private class Starter_Select implements
+			DialogInterface.OnMultiChoiceClickListener {
+		private String team_name;
+
+		public Starter_Select(String team_name) {
+			this.team_name = team_name;
+		}
+
+		public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+			alert_dialog.setTitle(get_selected() + " more starters for "
+					+ team_name);
+		}
+
+		private int get_selected() {
+			int count = 0;
+			for (int i = 0; i < checked.length; i++) {
+				if (checked[i])
+					count++;
+			}
+			return 5 - count;
+		}
+	}
+
+	private class Player_Action implements
 			DialogInterface.OnMultiChoiceClickListener {
 		public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-			// nothing
 		}
 	}
 
@@ -183,19 +215,19 @@ public class ScoreGameActivity extends Activity {
 	private void populate_away() {
 		int count = 0;
 		String[] starters = new String[5];
-		for (int i = 0; i < away_players.length; i++) {
+		for (int i = 0; i < players.length; i++) {
 			if (count == 5)
 				break;
-			if (away_checked[i]) {
-				String player_info = away_players[i].toString();
+			if (checked[i]) {
+				String player_info = players[i].toString();
 				starters[count] = player_info.substring(0, 5) + "\n"
 						+ player_info.substring(player_info.indexOf(" - ") + 3);
 				away_starters[count] = away_team.get_player_at(i + 1).getId();
 				count++;
 			}
 		}
-		away_players = null;
-		away_checked = null;
+		players = null;
+		checked = null;
 
 		away1.setText(starters[0]);
 		away2.setText(starters[1]);
@@ -212,19 +244,19 @@ public class ScoreGameActivity extends Activity {
 	private void populate_home() {
 		int count = 0;
 		String[] starters = new String[5];
-		for (int i = 0; i < home_players.length; i++) {
+		for (int i = 0; i < players.length; i++) {
 			if (count == 5)
 				break;
-			if (home_checked[i]) {
-				String player_info = home_players[i].toString();
+			if (checked[i]) {
+				String player_info = players[i].toString();
 				starters[count] = player_info.substring(0, 5) + "\n"
 						+ player_info.substring(player_info.indexOf(" - ") + 3);
 				home_starters[count] = home_team.get_player_at(i + 1).getId();
 				count++;
 			}
 		}
-		home_players = null;
-		home_checked = null;
+		players = null;
+		checked = null;
 
 		home1.setText(starters[0]);
 		home2.setText(starters[1]);
@@ -243,11 +275,11 @@ public class ScoreGameActivity extends Activity {
 	private void select_away_starters() {
 		ArrayList<Player> away_players_list = (ArrayList<Player>) away_team
 				.getPlayers();
-		away_players = new CharSequence[away_players_list.size() - 1];
-		away_checked = new boolean[away_players.length];
+		players = new CharSequence[away_players_list.size() - 1];
+		checked = new boolean[players.length];
 		for (int i = 0; i < away_players_list.size() - 1; i++) {
-			away_players[i] = away_players_list.get(i + 1).getLast_name()
-					+ " - " + away_players_list.get(i + 1).getJersey_number();
+			players[i] = away_players_list.get(i + 1).getLast_name() + " - "
+					+ away_players_list.get(i + 1).getJersey_number();
 		}
 		showDialog(SELECT_AWAY_STARTERS);
 	}
@@ -259,11 +291,11 @@ public class ScoreGameActivity extends Activity {
 	private void select_home_starters() {
 		ArrayList<Player> home_players_list = (ArrayList<Player>) home_team
 				.getPlayers();
-		home_players = new CharSequence[home_players_list.size() - 1];
-		home_checked = new boolean[home_players.length];
+		players = new CharSequence[home_players_list.size() - 1];
+		checked = new boolean[players.length];
 		for (int i = 0; i < home_players_list.size() - 1; i++) {
-			home_players[i] = home_players_list.get(i + 1).getLast_name()
-					+ " - " + home_players_list.get(i + 1).getJersey_number();
+			players[i] = home_players_list.get(i + 1).getLast_name() + " - "
+					+ home_players_list.get(i + 1).getJersey_number();
 		}
 		showDialog(SELECT_HOME_STARTERS);
 
@@ -281,7 +313,7 @@ public class ScoreGameActivity extends Activity {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			int method_id = intent.getIntExtra(Constants.METHOD_ID, -1);
-			switch (method_id){
+			switch (method_id) {
 			case 0:
 				dismissDialog(LOAD_GAMES_PROGRESS);
 				Log.d(TAG,

@@ -108,7 +108,7 @@ public class HTTPRequest extends Service {
 					se.setContentType(new BasicHeader("Content-Type",
 							"application/json"));
 				} catch (UnsupportedEncodingException e) {
-					System.out.println("Failed to build StringEntity.");
+					Log.e(TAG, "Failed to build StringEntity.");
 				}
 			}
 
@@ -119,7 +119,7 @@ public class HTTPRequest extends Service {
 				HttpEntity entity = response.getEntity();
 				response_inStream = entity.getContent();
 			} catch (Exception e) {
-				System.out.println("Failed to retrieve response.");
+				Log.e(TAG, "Failed to retrieve response.");
 				return null;
 			}
 
@@ -133,9 +133,10 @@ public class HTTPRequest extends Service {
 					response_builder.append(response_line + "\n");
 				}
 			} catch (Exception e) {
-				System.out.println("Failed to read response.");
+				Log.e(TAG, "Failed to read response.");
 				return null;
 			}
+			Log.d(TAG, "Response length: " + response_builder.toString());
 			return response_builder.toString();
 		}
 		/**
@@ -153,7 +154,7 @@ public class HTTPRequest extends Service {
 				HttpEntity entity = response.getEntity();
 				response_inStream = entity.getContent();
 			} catch (Exception e) {
-				System.out.println("Failed to retrieve response.");
+				Log.e(TAG, "Failed to retrieve response.");
 				return null;
 			}
 
@@ -167,10 +168,10 @@ public class HTTPRequest extends Service {
 					response_builder.append(response_line + "\n");
 				}
 			} catch (Exception e) {
-				System.out.println("Failed to read response.");
+				Log.e(TAG, "Failed to read response.");
 				return null;
 			}
-			Log.d(TAG, "Response length: " + response_builder.toString().length());
+			Log.d(TAG, "Response length: " + response_builder.toString());
 			return response_builder.toString();
 			
 		}

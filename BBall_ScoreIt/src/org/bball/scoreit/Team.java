@@ -43,6 +43,14 @@ public class Team {
 	public Player get_player_at(int loc){
 		return players.get(loc);
 	}
+	
+	public Player get_player_with_jersey(int jersey){
+		for (int i = 0; i < players.size(); i++){
+			if (get_player_at(i).getJersey_number() == jersey)
+				return get_player_at(i);
+		}
+		return null;
+	}
 
 	public List<Player> getPlayers() {
 		return players;
