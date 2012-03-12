@@ -41,6 +41,15 @@ public class API_Calls {
 		return temp;
 	}
 
+	static {
+		Constants.PLAYER_OPTIONS.put("Made Shot",
+				"http://api.espnalps.com/v0/cbb/madeShot");
+		Constants.PLAYER_OPTIONS.put("Missed Shot",
+				"http://api.espnalps.com/v0/cbb/missedShot");
+		Constants.PLAYER_OPTIONS.put("Rebound",
+				"http://api.espnalps.com/v0/cbb/rebound");
+	}
+
 	public API_Calls(Context context) {
 		try {
 			md = MessageDigest.getInstance("MD5");
@@ -166,10 +175,11 @@ public class API_Calls {
 		String setDataURL = Constants.SET_GAME_DATA + "/" + game_id + "?token="
 				+ token + "&signature=" + getSignature() + "&key="
 				+ Constants.ACCESS_KEY;
-		
+
 		Intent service_intent = new Intent(context, HTTPRequest.class);
 		service_intent.putExtra(Constants.URL, setDataURL);
-		service_intent.putExtra(Constants.PAYLOAD, game_data_payload.toString());
+		service_intent
+				.putExtra(Constants.PAYLOAD, game_data_payload.toString());
 		service_intent.putExtra(Constants.API_CALL, 2);
 		service_intent.putExtra(Constants.TYPE, 0);
 		service_intent.putExtra(Constants.METHOD_ID, 1);

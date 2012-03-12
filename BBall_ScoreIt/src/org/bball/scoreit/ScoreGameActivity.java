@@ -16,9 +16,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
-public class ScoreGameActivity extends Activity {
+public class ScoreGameActivity extends Activity implements
+		android.view.View.OnClickListener {
 
 	private static final String TAG = "BBALL_SCOREIT::SCOREGAMEACTIVITY";
 	private static final int LOAD_GAMES_PROGRESS = 0;
@@ -36,7 +38,8 @@ public class ScoreGameActivity extends Activity {
 	private TextView home1, home2, home3, home4, home5;
 	private TextView away_tv, home_tv;
 	private CharSequence[] players;
-	private String[] away_starters, home_starters;
+	private String[] away_starters, home_starters, player_actions;
+	private String current_player;
 	private boolean[] checked;
 
 	@Override
@@ -44,12 +47,21 @@ public class ScoreGameActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.score_game);
 
+		// list of limited actions for player
+		player_actions = new String[3];
+		player_actions[0] = "Rebound";
+		player_actions[1] = "Made Shot";
+		player_actions[2] = "Missed Shot";
+
+
 		// initialize all textviews in layout
 		away1 = (TextView) findViewById(R.id.score_game_away_1);
 		away2 = (TextView) findViewById(R.id.score_game_away_2);
 		away3 = (TextView) findViewById(R.id.score_game_away_3);
 		away4 = (TextView) findViewById(R.id.score_game_away_4);
 		away5 = (TextView) findViewById(R.id.score_game_away_5);
+		
+		away1.setOnClickListener(this);
 
 		home1 = (TextView) findViewById(R.id.score_game_home_1);
 		home2 = (TextView) findViewById(R.id.score_game_home_2);
@@ -139,7 +151,17 @@ public class ScoreGameActivity extends Activity {
 			return alert_dialog;
 			// Dialog for player action
 		case PLAYER_ACTION:
-			return null;
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Action for " + current_player)
+					.setItems(player_actions, 
+							new Player_Action())
+					.setPositiveButton("Accept", new OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) {
+							dismissDialog(PLAYER_ACTION);
+						}
+					}).create();
+			return alert_dialog;
 		default:
 			return null;
 		}
@@ -174,9 +196,8 @@ public class ScoreGameActivity extends Activity {
 		}
 	}
 
-	private class Player_Action implements
-			DialogInterface.OnMultiChoiceClickListener {
-		public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+	private class Player_Action implements OnClickListener {
+		public void onClick(DialogInterface dialog, int which) {
 		}
 	}
 
@@ -220,8 +241,12 @@ public class ScoreGameActivity extends Activity {
 				break;
 			if (checked[i]) {
 				String player_info = players[i].toString();
-				starters[count] = player_info.substring(0, 5) + "\n"
-						+ player_info.substring(player_info.indexOf(" - ") + 3);
+				String trunc_name = player_info.substring(0, 5);
+				String jersey_num = player_info.substring(player_info
+						.indexOf(" - ") + 3);
+				away_team.get_player_with_jersey(Integer.parseInt(jersey_num))
+						.setOn_court(true);
+				starters[count] = trunc_name + "\n" + jersey_num;
 				away_starters[count] = away_team.get_player_at(i + 1).getId();
 				count++;
 			}
@@ -249,8 +274,12 @@ public class ScoreGameActivity extends Activity {
 				break;
 			if (checked[i]) {
 				String player_info = players[i].toString();
-				starters[count] = player_info.substring(0, 5) + "\n"
-						+ player_info.substring(player_info.indexOf(" - ") + 3);
+				String trunc_name = player_info.substring(0, 5);
+				String jersey_num = player_info.substring(player_info
+						.indexOf(" - ") + 3);
+				home_team.get_player_with_jersey(Integer.parseInt(jersey_num))
+						.setOn_court(true);
+				starters[count] = trunc_name + "\n" + jersey_num;
 				home_starters[count] = home_team.get_player_at(i + 1).getId();
 				count++;
 			}
@@ -327,5 +356,20 @@ public class ScoreGameActivity extends Activity {
 			}
 		}
 
+	}
+
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.score_game_away_1:
+			String text = away1.getText().toString();
+			String jersey = text.substring(text.indexOf("\n") + 1);
+			current_player = away_team.get_player_with_jersey(
+					Integer.parseInt(jersey)).getLast_name();
+			Log.d(TAG, "text: " + text);
+			Log.d(TAG, "jersey: " + jersey);
+			Log.d(TAG, "current_player: " + current_player);
+			showDialog(PLAYER_ACTION);
+			break;
+		}
 	}
 }

@@ -10,7 +10,7 @@ public class Player {
 	private String first_name, middle_name, last_name;
 	private String id;
 	private int jersey_number;
-	private boolean is_team_player;
+	private boolean is_team_player, on_court = false;
 	
 	/**
 	 * Player constructor which extracts player information from json_string.
@@ -53,6 +53,14 @@ public class Player {
 
 	public boolean isIs_team_player() {
 		return is_team_player;
+	}
+
+	public boolean isOn_court() {
+		return on_court;
+	}
+
+	public void setOn_court(boolean on_court) {
+		this.on_court = on_court;
 	}
 	
 	

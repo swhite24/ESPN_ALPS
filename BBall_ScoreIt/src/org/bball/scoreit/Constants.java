@@ -1,6 +1,7 @@
 package org.bball.scoreit;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 
 /**
  * Interface containing commonly used constants.
@@ -22,6 +23,7 @@ public interface Constants {
 	public static final String GAMES = "http://api.espnalps.com/v0/cbb/games";
 	public static final String GET_GAME_DATA = "http://api.espnalps.com/v0/cbb/getGameData";
 	public static final String SET_GAME_DATA = "http://api.espnalps.com/v0/cbb/setGameData";
+	public static final HashMap<String, String> PLAYER_OPTIONS = new HashMap<String, String>();
 
 	// Intents
 	public static final String LOGIN_ACTIVITY = "org.bball.scoreit.LoginActivity";

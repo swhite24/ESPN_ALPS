@@ -7,7 +7,9 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,8 +22,10 @@ import android.widget.ListView;
 public class ShowGamesActivity extends ListActivity {
 
 	private static final String TAG = "BBALL_SCOREIT::SHOWGAMESACTIVITY";
+	private static final int GOT_GAMES = 0;
 	private List<String> games;
 	private GamesReceiver games_receiver;
+	private ProgressDialog loading_games;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +34,11 @@ public class ShowGamesActivity extends ListActivity {
 		setContentView(R.layout.list_games);
 
 		games = new ArrayList<String>();
+		loading_games = new ProgressDialog(this, ProgressDialog.STYLE_SPINNER);
+		if (loading_games.isShowing())
+			dismissDialog(GOT_GAMES);
+		showDialog(GOT_GAMES);
+		
 		getGames();
 	}
 
@@ -59,6 +68,18 @@ public class ShowGamesActivity extends ListActivity {
 			startActivity(score_game);
 		} catch (Exception e) {
 			Log.e(TAG, "Couldn't create game_obj");
+		}
+	}
+
+	@Override
+	protected Dialog onCreateDialog(int id) {
+		switch (id) {
+		case GOT_GAMES:
+			loading_games.setMessage("Loading Games...");
+			loading_games.setCancelable(false);
+			return loading_games;
+		default:
+			return null;
 		}
 	}
 
@@ -98,6 +119,7 @@ public class ShowGamesActivity extends ListActivity {
 	private class GamesReceiver extends BroadcastReceiver {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			dismissDialog(GOT_GAMES);
 			try {
 				JSONObject result_obj = new JSONObject(
 						intent.getStringExtra("result"));
