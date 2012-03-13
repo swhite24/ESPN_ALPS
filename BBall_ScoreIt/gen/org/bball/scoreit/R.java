@@ -36,12 +36,13 @@ public final class R {
         public static final int score_game_away_4=0x7f06000b;
         public static final int score_game_away_5=0x7f06000c;
         public static final int score_game_away_team_tv=0x7f06000d;
+        public static final int score_game_ball_overlay=0x7f060010;
         public static final int score_game_court=0x7f06000f;
-        public static final int score_game_home_1=0x7f060010;
-        public static final int score_game_home_2=0x7f060011;
-        public static final int score_game_home_3=0x7f060012;
-        public static final int score_game_home_4=0x7f060013;
-        public static final int score_game_home_5=0x7f060014;
+        public static final int score_game_home_1=0x7f060011;
+        public static final int score_game_home_2=0x7f060012;
+        public static final int score_game_home_3=0x7f060013;
+        public static final int score_game_home_4=0x7f060014;
+        public static final int score_game_home_5=0x7f060015;
         public static final int score_game_home_team_tv=0x7f06000e;
     }
     public static final class layout {

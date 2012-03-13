@@ -16,11 +16,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ScoreGameActivity extends Activity implements
-		android.view.View.OnClickListener {
+public class ScoreGameActivity extends Activity {
 
 	private static final String TAG = "BBALL_SCOREIT::SCOREGAMEACTIVITY";
 	private static final int LOAD_GAMES_PROGRESS = 0;
@@ -28,7 +30,9 @@ public class ScoreGameActivity extends Activity implements
 	private static final int SELECT_AWAY_STARTERS = 2;
 	private static final int SELECT_HOME_STARTERS = 3;
 	private static final int PLAYER_ACTION = 10;
+	private BallOverlay ball_overlay;
 	private GenericReceiver generic_receiver;
+	private AwayPlayerListener away_player_click;
 	private ProgressDialog progress_dialog;
 	private AlertDialog alert_dialog;
 	private API_Calls api_calls;
@@ -37,6 +41,7 @@ public class ScoreGameActivity extends Activity implements
 	private TextView away1, away2, away3, away4, away5;
 	private TextView home1, home2, home3, home4, home5;
 	private TextView away_tv, home_tv;
+	private ImageView court;
 	private CharSequence[] players;
 	private String[] away_starters, home_starters, player_actions;
 	private String current_player;
@@ -47,12 +52,25 @@ public class ScoreGameActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.score_game);
 
+		// setup click listener
+		away_player_click = new AwayPlayerListener();
+
+		ball_overlay = (BallOverlay) findViewById(R.id.score_game_ball_overlay);
+		court = (ImageView) findViewById(R.id.score_game_court);
+		court.setOnTouchListener(new OnTouchListener() {
+			public boolean onTouch(View v, MotionEvent event) {
+				ball_overlay.setX(event.getX());
+				ball_overlay.setY(event.getY());
+				ball_overlay.invalidate();
+				return true;
+			}
+		});
+
 		// list of limited actions for player
 		player_actions = new String[3];
 		player_actions[0] = "Rebound";
 		player_actions[1] = "Made Shot";
 		player_actions[2] = "Missed Shot";
-
 
 		// initialize all textviews in layout
 		away1 = (TextView) findViewById(R.id.score_game_away_1);
@@ -60,8 +78,12 @@ public class ScoreGameActivity extends Activity implements
 		away3 = (TextView) findViewById(R.id.score_game_away_3);
 		away4 = (TextView) findViewById(R.id.score_game_away_4);
 		away5 = (TextView) findViewById(R.id.score_game_away_5);
-		
-		away1.setOnClickListener(this);
+
+		away1.setOnClickListener(away_player_click);
+		away2.setOnClickListener(away_player_click);
+		away3.setOnClickListener(away_player_click);
+		away4.setOnClickListener(away_player_click);
+		away5.setOnClickListener(away_player_click);
 
 		home1 = (TextView) findViewById(R.id.score_game_home_1);
 		home2 = (TextView) findViewById(R.id.score_game_home_2);
@@ -153,8 +175,7 @@ public class ScoreGameActivity extends Activity implements
 		case PLAYER_ACTION:
 			alert_dialog = new AlertDialog.Builder(this)
 					.setTitle("Action for " + current_player)
-					.setItems(player_actions, 
-							new Player_Action())
+					.setItems(player_actions, new Player_Action())
 					.setPositiveButton("Accept", new OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int which) {
@@ -358,18 +379,18 @@ public class ScoreGameActivity extends Activity implements
 
 	}
 
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.score_game_away_1:
-			String text = away1.getText().toString();
+	private class AwayPlayerListener implements
+			android.view.View.OnClickListener {
+		public void onClick(View v) {
+			TextView temp = (TextView) v;
+			String text = temp.getText().toString();
 			String jersey = text.substring(text.indexOf("\n") + 1);
 			current_player = away_team.get_player_with_jersey(
 					Integer.parseInt(jersey)).getLast_name();
-			Log.d(TAG, "text: " + text);
-			Log.d(TAG, "jersey: " + jersey);
-			Log.d(TAG, "current_player: " + current_player);
+			Log.d(TAG, "jersey/currentplayer: " + jersey + "/" + current_player);
+			if (alert_dialog != null)
+				alert_dialog.setTitle("Action for " + current_player);
 			showDialog(PLAYER_ACTION);
-			break;
 		}
 	}
 }

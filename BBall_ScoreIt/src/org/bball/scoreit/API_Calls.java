@@ -185,6 +185,10 @@ public class API_Calls {
 		service_intent.putExtra(Constants.METHOD_ID, 1);
 		context.startService(service_intent);
 	}
+	
+	public void send_rebound(String playerId){
+		
+	}
 
 	/**
 	 * Generated MD5 hash of application access key, shared secret, and current
