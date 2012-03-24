@@ -217,6 +217,11 @@ public class ScoreGameActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Dialog ClickListener for player action.
+	 * @author Steve
+	 *
+	 */
 	private class Player_Action implements OnClickListener {
 		public void onClick(DialogInterface dialog, int which) {
 		}
@@ -270,6 +275,9 @@ public class ScoreGameActivity extends Activity {
 				starters[count] = trunc_name + "\n" + jersey_num;
 				away_starters[count] = away_team.get_player_at(i + 1).getId();
 				count++;
+			} else {
+				starters[count] = "!";
+				count++;
 			}
 		}
 		players = null;
@@ -302,6 +310,9 @@ public class ScoreGameActivity extends Activity {
 						.setOn_court(true);
 				starters[count] = trunc_name + "\n" + jersey_num;
 				home_starters[count] = home_team.get_player_at(i + 1).getId();
+				count++;
+			} else {
+				starters[count] = "!";
 				count++;
 			}
 		}

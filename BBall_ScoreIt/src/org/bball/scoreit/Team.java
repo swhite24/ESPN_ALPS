@@ -13,6 +13,7 @@ public class Team {
 	private static final String TAG = "BBALL_SCOREIT::TEAM";
 	private String id;
 	private String name;
+	private int score = 0;
 	List<Player> players;
 	
 	/**
@@ -64,5 +65,15 @@ public class Team {
 		return name;
 	}
 	
+	public int getScore() {
+		return score;
+	}
 	
+	public void setScore(int score){
+		this.score = score;
+	}
+	
+	public void incrementScore(int amount){
+		score += amount;
+	}
 }
