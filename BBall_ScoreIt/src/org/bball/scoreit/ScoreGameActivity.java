@@ -175,13 +175,7 @@ public class ScoreGameActivity extends Activity {
 		case PLAYER_ACTION:
 			alert_dialog = new AlertDialog.Builder(this)
 					.setTitle("Action for " + current_player)
-					.setItems(player_actions, new Player_Action())
-					.setPositiveButton("Accept", new OnClickListener() {
-
-						public void onClick(DialogInterface dialog, int which) {
-							dismissDialog(PLAYER_ACTION);
-						}
-					}).create();
+					.setItems(player_actions, new Player_Action()).create();
 			return alert_dialog;
 		default:
 			return null;
@@ -219,8 +213,9 @@ public class ScoreGameActivity extends Activity {
 
 	/**
 	 * Dialog ClickListener for player action.
+	 * 
 	 * @author Steve
-	 *
+	 * 
 	 */
 	private class Player_Action implements OnClickListener {
 		public void onClick(DialogInterface dialog, int which) {
@@ -275,19 +270,16 @@ public class ScoreGameActivity extends Activity {
 				starters[count] = trunc_name + "\n" + jersey_num;
 				away_starters[count] = away_team.get_player_at(i + 1).getId();
 				count++;
-			} else {
-				starters[count] = "!";
-				count++;
 			}
 		}
 		players = null;
 		checked = null;
 
-		away1.setText(starters[0]);
-		away2.setText(starters[1]);
-		away3.setText(starters[2]);
-		away4.setText(starters[3]);
-		away5.setText(starters[4]);
+		away1.setText(starters[0] == null ? "!" : starters[0]);
+		away2.setText(starters[1] == null ? "!" : starters[1]);
+		away3.setText(starters[2] == null ? "!" : starters[2]);
+		away4.setText(starters[3] == null ? "!" : starters[3]);
+		away5.setText(starters[4] == null ? "!" : starters[4]);
 		select_home_starters();
 	}
 
@@ -311,19 +303,16 @@ public class ScoreGameActivity extends Activity {
 				starters[count] = trunc_name + "\n" + jersey_num;
 				home_starters[count] = home_team.get_player_at(i + 1).getId();
 				count++;
-			} else {
-				starters[count] = "!";
-				count++;
 			}
 		}
 		players = null;
 		checked = null;
 
-		home1.setText(starters[0]);
-		home2.setText(starters[1]);
-		home3.setText(starters[2]);
-		home4.setText(starters[3]);
-		home5.setText(starters[4]);
+		home1.setText(starters[0] == null ? "!" : starters[0]);
+		home2.setText(starters[1] == null ? "!" : starters[1]);
+		home3.setText(starters[2] == null ? "!" : starters[2]);
+		home4.setText(starters[3] == null ? "!" : starters[3]);
+		home5.setText(starters[4] == null ? "!" : starters[4]);
 
 		showDialog(SUBMIT_GAME_DATA);
 		api_calls.setGameData(away_starters, home_starters);
