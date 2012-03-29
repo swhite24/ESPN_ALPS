@@ -73,12 +73,13 @@ public class ScoreGameActivity extends Activity {
 		});
 
 		// list of limited actions for player
-		player_actions = new String[5];
+		player_actions = new String[6];
 		player_actions[0] = "Rebound";
 		player_actions[1] = "Made Shot";
 		player_actions[2] = "Missed Shot";
 		player_actions[3] = "Turnover";
 		player_actions[4] = "Foul";
+		player_actions[5] = "Substitution";
 
 		// initialize all textviews in layout
 		away1 = (TextView) findViewById(R.id.score_game_away_1);
