@@ -29,18 +29,22 @@ public class ScoreGameActivity extends Activity {
 	private static final int SUBMIT_GAME_DATA = 1;
 	private static final int SELECT_AWAY_STARTERS = 2;
 	private static final int SELECT_HOME_STARTERS = 3;
-	private static final int PLAYER_ACTION = 10;
+	private static final int AWAY_PLAYER_ACTION = 10;
+	private static final int HOME_PLAYER_ACTION = 11;
+	private static final int AWAY_PLAYER_SUBSTITUTION = 20;
+	private static final int HOME_PLAYER_SUBSTITUTION = 21;
 	private BallOverlay ball_overlay;
 	private GenericReceiver generic_receiver;
 	private AwayPlayerListener away_player_click;
+	private HomePlayerListener home_player_click;
 	private ProgressDialog progress_dialog;
 	private AlertDialog alert_dialog;
 	private API_Calls api_calls;
 	private Game game;
-	private Team home_team, away_team;
+	private Team home_team, away_team, current_team;
 	private TextView away1, away2, away3, away4, away5;
 	private TextView home1, home2, home3, home4, home5;
-	private TextView away_tv, home_tv;
+	private TextView away_tv, home_tv, current;
 	private ImageView court;
 	private CharSequence[] players;
 	private String[] away_starters, home_starters, player_actions;
@@ -51,9 +55,11 @@ public class ScoreGameActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.score_game);
+		Log.d(TAG, "ScoreGameActivity OnCreate");
 
 		// setup click listener
 		away_player_click = new AwayPlayerListener();
+		home_player_click = new HomePlayerListener();
 
 		ball_overlay = (BallOverlay) findViewById(R.id.score_game_ball_overlay);
 		court = (ImageView) findViewById(R.id.score_game_court);
@@ -67,10 +73,12 @@ public class ScoreGameActivity extends Activity {
 		});
 
 		// list of limited actions for player
-		player_actions = new String[3];
+		player_actions = new String[5];
 		player_actions[0] = "Rebound";
 		player_actions[1] = "Made Shot";
 		player_actions[2] = "Missed Shot";
+		player_actions[3] = "Turnover";
+		player_actions[4] = "Foul";
 
 		// initialize all textviews in layout
 		away1 = (TextView) findViewById(R.id.score_game_away_1);
@@ -90,6 +98,12 @@ public class ScoreGameActivity extends Activity {
 		home3 = (TextView) findViewById(R.id.score_game_home_3);
 		home4 = (TextView) findViewById(R.id.score_game_home_4);
 		home5 = (TextView) findViewById(R.id.score_game_home_5);
+
+		home1.setOnClickListener(home_player_click);
+		home2.setOnClickListener(home_player_click);
+		home3.setOnClickListener(home_player_click);
+		home4.setOnClickListener(home_player_click);
+		home5.setOnClickListener(home_player_click);
 
 		away_tv = (TextView) findViewById(R.id.score_game_away_team_tv);
 		home_tv = (TextView) findViewById(R.id.score_game_home_team_tv);
@@ -172,10 +186,51 @@ public class ScoreGameActivity extends Activity {
 					}).create();
 			return alert_dialog;
 			// Dialog for player action
-		case PLAYER_ACTION:
+		case AWAY_PLAYER_ACTION:
 			alert_dialog = new AlertDialog.Builder(this)
 					.setTitle("Action for " + current_player)
-					.setItems(player_actions, new Player_Action()).create();
+					.setItems(player_actions, new AwayPlayerAction()).create();
+			return alert_dialog;
+		case HOME_PLAYER_ACTION:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Action for " + current_player)
+					.setItems(player_actions, new HomePlayerAction()).create();
+			return alert_dialog;
+		case AWAY_PLAYER_SUBSTITUTION:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Substitution for " + current_player)
+					.setItems(players, new OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) {
+							String player_info = players[which].toString();
+							String trunc_name = player_info.substring(0, 5);
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							current_team.get_player_with_jersey(
+									Integer.parseInt(jersey_num)).setOn_court(
+									true);
+							String new_player = trunc_name + "\n" + jersey_num;
+							current.setText(new_player);
+						}
+					}).create();
+			return alert_dialog;
+		case HOME_PLAYER_SUBSTITUTION:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Substitution for " + current_player)
+					.setItems(players, new OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) {
+							String player_info = players[which].toString();
+							String trunc_name = player_info.substring(0, 5);
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							current_team.get_player_with_jersey(
+									Integer.parseInt(jersey_num)).setOn_court(
+									true);
+							String new_player = trunc_name + "\n" + jersey_num;
+							current.setText(new_player);
+						}
+					}).create();
 			return alert_dialog;
 		default:
 			return null;
@@ -201,6 +256,12 @@ public class ScoreGameActivity extends Activity {
 					+ team_name);
 		}
 
+		/**
+		 * Number of remaining starts to select.
+		 * 
+		 * @return - number of remaining starters to select. (5 - current
+		 *         number)
+		 */
 		private int get_selected() {
 			int count = 0;
 			for (int i = 0; i < checked.length; i++) {
@@ -212,14 +273,29 @@ public class ScoreGameActivity extends Activity {
 	}
 
 	/**
-	 * Dialog ClickListener for player action.
+	 * Dialog ClickListener for away player action.
 	 * 
 	 * @author Steve
 	 * 
 	 */
-	private class Player_Action implements OnClickListener {
+	private class AwayPlayerAction implements OnClickListener {
 		public void onClick(DialogInterface dialog, int which) {
+
 		}
+	}
+
+	/**
+	 * Dialog ClickListener for away player action.
+	 * 
+	 * @author Steve
+	 * 
+	 */
+	private class HomePlayerAction implements OnClickListener {
+
+		public void onClick(DialogInterface dialog, int which) {
+
+		}
+
 	}
 
 	/**
@@ -247,6 +323,7 @@ public class ScoreGameActivity extends Activity {
 			select_away_starters();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to populate game fields");
+			Log.e(TAG, e.getMessage());
 		}
 	}
 
@@ -323,14 +400,7 @@ public class ScoreGameActivity extends Activity {
 	 * booleans. Shows dialog to select starters for away team.
 	 */
 	private void select_away_starters() {
-		ArrayList<Player> away_players_list = (ArrayList<Player>) away_team
-				.getPlayers();
-		players = new CharSequence[away_players_list.size() - 1];
-		checked = new boolean[players.length];
-		for (int i = 0; i < away_players_list.size() - 1; i++) {
-			players[i] = away_players_list.get(i + 1).getLast_name() + " - "
-					+ away_players_list.get(i + 1).getJersey_number();
-		}
+		populate_players(away_team);
 		showDialog(SELECT_AWAY_STARTERS);
 	}
 
@@ -339,16 +409,19 @@ public class ScoreGameActivity extends Activity {
 	 * booleans. Shows dialog to select starters for home team.
 	 */
 	private void select_home_starters() {
-		ArrayList<Player> home_players_list = (ArrayList<Player>) home_team
-				.getPlayers();
-		players = new CharSequence[home_players_list.size() - 1];
-		checked = new boolean[players.length];
-		for (int i = 0; i < home_players_list.size() - 1; i++) {
-			players[i] = home_players_list.get(i + 1).getLast_name() + " - "
-					+ home_players_list.get(i + 1).getJersey_number();
-		}
+		populate_players(home_team);
 		showDialog(SELECT_HOME_STARTERS);
 
+	}
+
+	private void populate_players(Team team) {
+		ArrayList<Player> players_list = (ArrayList<Player>) team.getPlayers();
+		players = new CharSequence[players_list.size() - 1];
+		checked = new boolean[players.length];
+		for (int i = 0; i < players_list.size() - 1; i++) {
+			players[i] = players_list.get(i + 1).getLast_name() + " - "
+					+ players_list.get(i + 1).getJersey_number();
+		}
 	}
 
 	/**
@@ -362,6 +435,7 @@ public class ScoreGameActivity extends Activity {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			Log.d(TAG, "GenericReceiver onReceive");
 			int method_id = intent.getIntExtra(Constants.METHOD_ID, -1);
 			switch (method_id) {
 			case 0:
@@ -379,18 +453,74 @@ public class ScoreGameActivity extends Activity {
 
 	}
 
+	/**
+	 * OnClickListener for five currently on-court players for the away team.
+	 * Prompts user to either select an action for player or substitute the
+	 * player.
+	 * 
+	 * @author Steve
+	 * 
+	 */
 	private class AwayPlayerListener implements
 			android.view.View.OnClickListener {
 		public void onClick(View v) {
 			TextView temp = (TextView) v;
-			String text = temp.getText().toString();
-			String jersey = text.substring(text.indexOf("\n") + 1);
-			current_player = away_team.get_player_with_jersey(
-					Integer.parseInt(jersey)).getLast_name();
-			Log.d(TAG, "jersey/currentplayer: " + jersey + "/" + current_player);
-			if (alert_dialog != null)
-				alert_dialog.setTitle("Action for " + current_player);
-			showDialog(PLAYER_ACTION);
+			if (!temp.getText().equals("!")) {
+				String text = temp.getText().toString();
+				String jersey = text.substring(text.indexOf("\n") + 1);
+				current_player = away_team.get_player_with_jersey(
+						Integer.parseInt(jersey)).getLast_name();
+				current_team = away_team;
+				current = temp;
+				Log.d(TAG, "jersey/currentplayer: " + jersey + "/"
+						+ current_player);
+				if (alert_dialog != null)
+					alert_dialog.setTitle("Action for " + current_player);
+				showDialog(AWAY_PLAYER_ACTION);
+			} else {
+				current_player = "!";
+				current_team = away_team;
+				current = temp;
+				populate_players(away_team);
+				alert_dialog = null;
+				showDialog(AWAY_PLAYER_SUBSTITUTION);
+			}
+		}
+	}
+
+	/**
+	 * OnClickListener for five currently on-court players for the home team.
+	 * Prompts user to either select an action for player or substitute the
+	 * player.
+	 * 
+	 * @author Steve
+	 * 
+	 */
+	private class HomePlayerListener implements
+			android.view.View.OnClickListener {
+
+		public void onClick(View v) {
+			TextView temp = (TextView) v;
+			if (!temp.getText().equals("!")) {
+				String text = temp.getText().toString();
+				String jersey = text.substring(text.indexOf("\n") + 1);
+				current_player = home_team.get_player_with_jersey(
+						Integer.parseInt(jersey)).getLast_name();
+				current_team = home_team;
+				current = temp;
+				Log.d(TAG, "jersey/currentplayer: " + jersey + "/"
+						+ current_player);
+				if (alert_dialog != null)
+					alert_dialog.setTitle("Action for " + current_player);
+				showDialog(HOME_PLAYER_ACTION);
+			} else {
+				current_player = "!";
+				current_team = home_team;
+				current = temp;
+				populate_players(home_team);
+				alert_dialog = null;
+				showDialog(HOME_PLAYER_SUBSTITUTION);
+			}
 		}
 	}
 }

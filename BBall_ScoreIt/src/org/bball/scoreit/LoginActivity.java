@@ -31,6 +31,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		Log.d(TAG, "LoginActivity onCreate");
 
 		api_calls = new API_Calls(this);
 
