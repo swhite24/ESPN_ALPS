@@ -9,6 +9,11 @@
 	<string name="login_btn_text">Submit</string>
 	<string name="login_remember_text">Remember Me</string>
 	<string name="score_game_court_desc">Basketball Court</string>
+	<string name="score_game_official_txt">Official</string>
+	<string name="score_game_stats_txt">Stats</string>
+	<string name="score_game_action_txt">Action</string>
+	<string name="score_game_start_score">0</string>
+	<string name="score_game_start_period">Start 1st</string>
 	<string name="away_txt">AWAY</string>
 	<string name="home_txt">HOME</string>
 	<string name="at_txt">AT</string>

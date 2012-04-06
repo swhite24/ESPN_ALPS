@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -185,9 +186,56 @@ public class API_Calls {
 		service_intent.putExtra(Constants.METHOD_ID, 1);
 		context.startService(service_intent);
 	}
-	
-	public void send_rebound(String playerId){
-		
+
+	/**
+	 * Submits rebound to server with given parameter.
+	 * 
+	 * @param playerId
+	 *            - ID of player who got rebound, null if team rebound.
+	 * @param type
+	 *            - Type of rebound; see Constants.REBOUND_OPTIONS
+	 * @param location
+	 *            - location on court of rebound; see
+	 *            BallOverlay.get_court_location()
+	 */
+	public void send_rebound(String playerId, String type, JSONArray location, JSONObject con) {
+		JSONObject rebound_payload = new JSONObject();
+		try {
+			rebound_payload.put("gameId", game_id);
+			if (playerId != null)
+				rebound_payload.put("rebounder", playerId);
+			rebound_payload.put("reboundType", type);
+			rebound_payload.put("location", location);
+			rebound_payload.put("context", con);
+		} catch (Exception e) {
+			Log.d(TAG, "Unable to create rebound_payload: " + e.getMessage());
+		}
+		String rebound_url = Constants.REBOUND_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, rebound_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, rebound_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	public JSONObject make_context(int homeScore, int awayScore) {
+		try {
+			JSONObject temp = new JSONObject();
+			temp.put("time",
+					Constants.df.format(Calendar.getInstance().getTime()));
+			temp.put("homeScore", homeScore);
+			temp.put("awayScore", awayScore);
+			return temp;
+		} catch (JSONException e) {
+			Log.d(TAG, "Unable to create context: " + e.getMessage());
+			return null;
+		}
+
 	}
 
 	/**

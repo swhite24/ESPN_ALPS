@@ -16,6 +16,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -29,8 +31,10 @@ public class ScoreGameActivity extends Activity {
 	private static final int SUBMIT_GAME_DATA = 1;
 	private static final int SELECT_AWAY_STARTERS = 2;
 	private static final int SELECT_HOME_STARTERS = 3;
+	private static final int SUBMIT_ACTION = 4;
 	private static final int AWAY_PLAYER_ACTION = 10;
 	private static final int HOME_PLAYER_ACTION = 11;
+	private static final int PLAYER_REBOUND_TYPE_SELECT = 12;
 	private static final int AWAY_PLAYER_SUBSTITUTION = 20;
 	private static final int HOME_PLAYER_SUBSTITUTION = 21;
 	private BallOverlay ball_overlay;
@@ -119,6 +123,30 @@ public class ScoreGameActivity extends Activity {
 		// load game data
 		api_calls.getGameData(game.getId());
 	}
+	
+	
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {		
+		super.onCreateOptionsMenu(menu);
+		MenuInflater mi = getMenuInflater();
+		mi.inflate(R.menu.score_game_menu, menu);
+		return true;
+	}
+
+
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		ball_overlay.setWidth(court.getWidth());
+		ball_overlay.setHeight(court.getHeight());
+		ball_overlay.setX(court.getWidth() / 2.0f);
+		ball_overlay.setY(court.getHeight() / 2.0f);
+		ball_overlay.invalidate();
+		
+		Log.d(TAG, "tv w/h: " + away_tv.getWidth() + "/" + away_tv.getHeight());
+		super.onWindowFocusChanged(hasFocus);
+	}
 
 	@Override
 	protected void onPause() {
@@ -151,6 +179,12 @@ public class ScoreGameActivity extends Activity {
 			progress_dialog = new ProgressDialog(this,
 					ProgressDialog.STYLE_SPINNER);
 			progress_dialog.setMessage("Submitting starters...");
+			progress_dialog.setCancelable(false);
+			return progress_dialog;
+		case SUBMIT_ACTION:
+			progress_dialog = new ProgressDialog(this,
+					ProgressDialog.STYLE_SPINNER);
+			progress_dialog.setMessage("Submitting action...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
 			// Dialog allowing users to select starters for away team
@@ -233,6 +267,36 @@ public class ScoreGameActivity extends Activity {
 						}
 					}).create();
 			return alert_dialog;
+		case PLAYER_REBOUND_TYPE_SELECT:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Rebound Type")
+					.setItems(Constants.REBOUND_OPTIONS, new OnClickListener() {
+
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == 0) {
+								current_team.get_player_with_name(
+										current_player).def_rb();
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_rebound(current_team
+										.get_player_with_name(current_player)
+										.getId(), "defensive", ball_overlay
+										.get_court_location(), api_calls
+										.make_context(home_team.getScore(),
+												away_team.getScore()));
+							} else {
+								current_team.get_player_with_name(
+										current_player).off_rb();
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_rebound(current_team
+										.get_player_with_name(current_player)
+										.getId(), "offensive", ball_overlay
+										.get_court_location(), api_calls
+										.make_context(home_team.getScore(),
+												away_team.getScore()));
+							}
+						}
+					}).create();
+			return alert_dialog;
 		default:
 			return null;
 		}
@@ -281,7 +345,10 @@ public class ScoreGameActivity extends Activity {
 	 */
 	private class AwayPlayerAction implements OnClickListener {
 		public void onClick(DialogInterface dialog, int which) {
-
+			switch (which) {
+			case 0:
+				showDialog(PLAYER_REBOUND_TYPE_SELECT);
+			}
 		}
 	}
 
@@ -294,6 +361,10 @@ public class ScoreGameActivity extends Activity {
 	private class HomePlayerAction implements OnClickListener {
 
 		public void onClick(DialogInterface dialog, int which) {
+			switch (which) {
+			case 0:
+				showDialog(PLAYER_REBOUND_TYPE_SELECT);
+			}
 
 		}
 
@@ -314,6 +385,11 @@ public class ScoreGameActivity extends Activity {
 			JSONObject response_obj = new JSONObject(gameData);
 			JSONObject game_obj = new JSONObject(response_obj.get("response")
 					.toString());
+			
+			if (response_obj.has("gameEvents"))
+				Log.d(TAG, response_obj.getJSONArray("gameEvents").toString());
+			else 
+				Log.d(TAG, "No game events");
 
 			home_team = new Team(game_obj.get("homeTeam").toString());
 			away_team = new Team(game_obj.get("awayTeam").toString());
@@ -358,6 +434,7 @@ public class ScoreGameActivity extends Activity {
 		away3.setText(starters[2] == null ? "!" : starters[2]);
 		away4.setText(starters[3] == null ? "!" : starters[3]);
 		away5.setText(starters[4] == null ? "!" : starters[4]);
+
 		select_home_starters();
 	}
 
@@ -445,10 +522,14 @@ public class ScoreGameActivity extends Activity {
 						"Received result length: "
 								+ intent.getStringExtra("result").length());
 				populateFields(intent.getStringExtra("result"));
+				
 				break;
 			case 1:
 				dismissDialog(SUBMIT_GAME_DATA);
 				break;
+			case 2:
+				dismissDialog(SUBMIT_ACTION);
+
 			}
 		}
 

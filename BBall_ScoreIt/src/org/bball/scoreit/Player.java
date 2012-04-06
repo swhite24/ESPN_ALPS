@@ -10,6 +10,7 @@ public class Player {
 	private String first_name, middle_name, last_name;
 	private String id;
 	private int jersey_number;
+	private int FGM, FGA, FTM, FTA, assists, defRB, offRB, totRB, blocks, pts;
 	private boolean is_team_player, on_court = false;
 	
 	/**
@@ -29,6 +30,7 @@ public class Player {
 		} catch (Exception e){
 			Log.e(TAG, "Couldn't construct player");
 		}
+		FGM = FGA = FTM = assists = defRB = offRB = totRB = blocks = pts = 0;
 	}
 
 	public String getFirst_name() {
@@ -61,6 +63,16 @@ public class Player {
 
 	public void setOn_court(boolean on_court) {
 		this.on_court = on_court;
+	}
+	
+	public void def_rb(){
+		defRB++;
+		totRB++;
+	}
+	
+	public void off_rb(){
+		offRB++;
+		totRB++;
 	}
 	
 	

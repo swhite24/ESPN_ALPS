@@ -13,7 +13,7 @@ public class Team {
 	private static final String TAG = "BBALL_SCOREIT::TEAM";
 	private String id;
 	private String name;
-	private int score = 0;
+	private int score = 0, TOs;
 	List<Player> players;
 	
 	/**
@@ -52,6 +52,14 @@ public class Team {
 		}
 		return null;
 	}
+	
+	public Player get_player_with_name(String name){
+		for (int i = 0; i < players.size(); i++){
+			if (get_player_at(i).getLast_name().equals(name))
+				return get_player_at(i);
+		}
+		return null;
+	}
 
 	public List<Player> getPlayers() {
 		return players;
@@ -75,5 +83,9 @@ public class Team {
 	
 	public void incrementScore(int amount){
 		score += amount;
+	}
+	
+	public void useTO(){
+		TOs--;
 	}
 }

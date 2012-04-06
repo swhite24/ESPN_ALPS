@@ -23,6 +23,7 @@ public interface Constants {
 	public static final String GAMES = "http://api.espnalps.com/v0/cbb/games";
 	public static final String GET_GAME_DATA = "http://api.espnalps.com/v0/cbb/getGameData";
 	public static final String SET_GAME_DATA = "http://api.espnalps.com/v0/cbb/setGameData";
+	public static final String REBOUND_URL = "http://api.espnalps.com/v0/cbb/rebound";
 	public static final HashMap<String, String> PLAYER_OPTIONS = new HashMap<String, String>();
 
 	// Intents
@@ -40,5 +41,7 @@ public interface Constants {
 	// account info
 	public static final String USERNAME = "swhite24";
 	public static final String PASSWORD = "!WVUalps";
+	
+	public static final CharSequence[] REBOUND_OPTIONS = {"defensive", "offensive"};
 
 }
