@@ -41,22 +41,30 @@ public class Team {
 	 * @param loc - location of player in players list
 	 * @return Player at location loc
 	 */
-	public Player get_player_at(int loc){
+	public Player get_player(int loc){
 		return players.get(loc);
 	}
 	
 	public Player get_player_with_jersey(int jersey){
 		for (int i = 0; i < players.size(); i++){
-			if (get_player_at(i).getJersey_number() == jersey)
-				return get_player_at(i);
+			if (get_player(i).getJersey_number() == jersey)
+				return get_player(i);
 		}
 		return null;
 	}
 	
 	public Player get_player_with_name(String name){
 		for (int i = 0; i < players.size(); i++){
-			if (get_player_at(i).getLast_name().equals(name))
-				return get_player_at(i);
+			if (get_player(i).getLast_name().equals(name))
+				return get_player(i);
+		}
+		return null;
+	}
+	
+	public Player get_player_with_id(String id){
+		for (int i = 0; i < players.size(); i++){
+			if (get_player(i).getId().equals(id))
+				return get_player(i);
 		}
 		return null;
 	}

@@ -21,6 +21,7 @@ import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -32,28 +33,49 @@ public class ScoreGameActivity extends Activity {
 	private static final int SELECT_AWAY_STARTERS = 2;
 	private static final int SELECT_HOME_STARTERS = 3;
 	private static final int SUBMIT_ACTION = 4;
+	private static final int AWAY_PLAYER_SUBSTITUTION = 5;
+	private static final int HOME_PLAYER_SUBSTITUTION = 6;
 	private static final int AWAY_PLAYER_ACTION = 10;
 	private static final int HOME_PLAYER_ACTION = 11;
 	private static final int PLAYER_REBOUND_TYPE_SELECT = 12;
-	private static final int AWAY_PLAYER_SUBSTITUTION = 20;
-	private static final int HOME_PLAYER_SUBSTITUTION = 21;
+	private static final int PLAYER_SHOT_TYPE_SELECT = 13;
+	private static final int PLAYER_TURNOVER_TYPE_SELECT = 14;
+	private static final int PLAYER_FOUL_TYPE_SELECT = 15;
+	private static final int CHECK_ASSISTED = 20;
+	private static final int CHECK_FAST_BREAK = 21;
+	private static final int CHECK_GOALTENDING = 22;
+	private static final int CHECK_BLOCKED = 23;
+	private static final int CHECK_FORCED = 24;
+	private static final int CHECK_DRAWN = 25;
+	private static final int CHECK_EJECTED = 26;
+	private static final int CHOOSE_ASSISTER = 30;
+	private static final int CHOOSE_BLOCKER = 31;
+	private static final int CHOOSE_FORCER = 32;
+	private static final int CHOOSE_DRAWER = 33;
 	private BallOverlay ball_overlay;
 	private GenericReceiver generic_receiver;
 	private AwayPlayerListener away_player_click;
 	private HomePlayerListener home_player_click;
+	private TeamActionListener team_action_click;
 	private ProgressDialog progress_dialog;
-	private AlertDialog alert_dialog;
+	private AlertDialog alert_dialog, away_dialog, home_dialog;
 	private API_Calls api_calls;
 	private Game game;
 	private Team home_team, away_team, current_team;
 	private TextView away1, away2, away3, away4, away5;
 	private TextView home1, home2, home3, home4, home5;
 	private TextView away_tv, home_tv, current;
+	private TextView home_score, away_score;
+	private Button away_click, home_click;
 	private ImageView court;
 	private CharSequence[] players;
 	private String[] away_starters, home_starters, player_actions;
-	private String current_player;
+	private String current_player, sec_player, shot_type, foul_type;
+	private String turn_type;
+	private int pts;
+	private boolean fast_break, goaltending, make, ejected;
 	private boolean[] checked;
+	private static final CharSequence[] yes_no = { "Yes", "No" };
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +86,13 @@ public class ScoreGameActivity extends Activity {
 		// setup click listener
 		away_player_click = new AwayPlayerListener();
 		home_player_click = new HomePlayerListener();
+		team_action_click = new TeamActionListener();
+
+		away_click = (Button) findViewById(R.id.score_game_away_action);
+		home_click = (Button) findViewById(R.id.score_game_home_action);
+
+		away_click.setOnClickListener(team_action_click);
+		home_click.setOnClickListener(team_action_click);
 
 		ball_overlay = (BallOverlay) findViewById(R.id.score_game_ball_overlay);
 		court = (ImageView) findViewById(R.id.score_game_court);
@@ -84,6 +113,9 @@ public class ScoreGameActivity extends Activity {
 		player_actions[3] = "Turnover";
 		player_actions[4] = "Foul";
 		player_actions[5] = "Substitution";
+		
+		home_score = (TextView) findViewById(R.id.score_game_home_score);
+		away_score = (TextView) findViewById(R.id.score_game_away_score);
 
 		// initialize all textviews in layout
 		away1 = (TextView) findViewById(R.id.score_game_away_1);
@@ -123,18 +155,14 @@ public class ScoreGameActivity extends Activity {
 		// load game data
 		api_calls.getGameData(game.getId());
 	}
-	
-	
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {		
+	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
 		MenuInflater mi = getMenuInflater();
 		mi.inflate(R.menu.score_game_menu, menu);
 		return true;
 	}
-
-
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -143,8 +171,6 @@ public class ScoreGameActivity extends Activity {
 		ball_overlay.setX(court.getWidth() / 2.0f);
 		ball_overlay.setY(court.getHeight() / 2.0f);
 		ball_overlay.invalidate();
-		
-		Log.d(TAG, "tv w/h: " + away_tv.getWidth() + "/" + away_tv.getHeight());
 		super.onWindowFocusChanged(hasFocus);
 	}
 
@@ -195,11 +221,7 @@ public class ScoreGameActivity extends Activity {
 							new Starter_Select(away_team.getName()))
 					.setPositiveButton("Finished", new OnClickListener() {
 						public void onClick(DialogInterface dialog, int which) {
-							switch (which) {
-							case DialogInterface.BUTTON_POSITIVE:
-								populate_away();
-								break;
-							}
+							populate_away();
 						}
 					}).create();
 			return alert_dialog;
@@ -222,78 +244,407 @@ public class ScoreGameActivity extends Activity {
 			return alert_dialog;
 			// Dialog for player action
 		case AWAY_PLAYER_ACTION:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Action for " + current_player)
+			away_dialog = new AlertDialog.Builder(this)
+					.setTitle(
+							"Action for "
+									+ current_team.get_player_with_id(
+											current_player).getLast_name())
 					.setItems(player_actions, new AwayPlayerAction()).create();
-			return alert_dialog;
+			return away_dialog;
 		case HOME_PLAYER_ACTION:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Action for " + current_player)
+			home_dialog = new AlertDialog.Builder(this)
+					.setTitle(
+							"Action for "
+									+ current_team.get_player_with_id(
+											current_player).getLast_name())
 					.setItems(player_actions, new HomePlayerAction()).create();
-			return alert_dialog;
+			return home_dialog;
 		case AWAY_PLAYER_SUBSTITUTION:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Substitution for " + current_player)
+			away_dialog = new AlertDialog.Builder(this)
+					.setTitle(
+							"Substitution for "
+									+ current_team.get_player_with_id(
+											current_player).getLast_name())
 					.setItems(players, new OnClickListener() {
-
 						public void onClick(DialogInterface dialog, int which) {
 							String player_info = players[which].toString();
 							String trunc_name = player_info.substring(0, 5);
 							String jersey_num = player_info
 									.substring(player_info.indexOf(" - ") + 3);
-							current_team.get_player_with_jersey(
+							away_team.get_player_with_jersey(
 									Integer.parseInt(jersey_num)).setOn_court(
 									true);
+							if (current_player != null) {
+								away_team.get_player_with_id(current_player)
+										.setOn_court(false);
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_substitution(
+										away_team.get_player_with_jersey(
+												Integer.parseInt(jersey_num))
+												.getId(), current_player,
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+							}
 							String new_player = trunc_name + "\n" + jersey_num;
 							current.setText(new_player);
 						}
 					}).create();
-			return alert_dialog;
+			return away_dialog;
 		case HOME_PLAYER_SUBSTITUTION:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Substitution for " + current_player)
+			home_dialog = new AlertDialog.Builder(this)
+					.setTitle(
+							"Substitution for "
+									+ current_team.get_player_with_id(
+											current_player).getLast_name())
 					.setItems(players, new OnClickListener() {
-
 						public void onClick(DialogInterface dialog, int which) {
 							String player_info = players[which].toString();
 							String trunc_name = player_info.substring(0, 5);
 							String jersey_num = player_info
 									.substring(player_info.indexOf(" - ") + 3);
-							current_team.get_player_with_jersey(
+							home_team.get_player_with_jersey(
 									Integer.parseInt(jersey_num)).setOn_court(
 									true);
+							if (current_player != null) {
+								home_team.get_player_with_id(current_player)
+										.setOn_court(false);
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_substitution(
+										home_team.get_player_with_jersey(
+												Integer.parseInt(jersey_num))
+												.getId(), current_player,
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+							}
 							String new_player = trunc_name + "\n" + jersey_num;
 							current.setText(new_player);
 						}
 					}).create();
-			return alert_dialog;
+			return home_dialog;
 		case PLAYER_REBOUND_TYPE_SELECT:
 			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Rebound Type")
+					.setTitle("Select Rebound Type")
 					.setItems(Constants.REBOUND_OPTIONS, new OnClickListener() {
 
 						public void onClick(DialogInterface dialog, int which) {
 							if (which == 0) {
-								current_team.get_player_with_name(
-										current_player).def_rb();
+								current_team.get_player_with_id(current_player)
+										.def_rb();
 								showDialog(SUBMIT_ACTION);
-								api_calls.send_rebound(current_team
-										.get_player_with_name(current_player)
-										.getId(), "defensive", ball_overlay
-										.get_court_location(), api_calls
-										.make_context(home_team.getScore(),
+								api_calls.send_rebound(
+										current_player,
+										"defensive",
+										ball_overlay.get_court_location(),
+										api_calls.make_context(
+												home_team.getScore(),
 												away_team.getScore()));
 							} else {
-								current_team.get_player_with_name(
-										current_player).off_rb();
+								current_team.get_player_with_id(current_player)
+										.off_rb();
 								showDialog(SUBMIT_ACTION);
-								api_calls.send_rebound(current_team
-										.get_player_with_name(current_player)
-										.getId(), "offensive", ball_overlay
-										.get_court_location(), api_calls
-										.make_context(home_team.getScore(),
+								api_calls.send_rebound(
+										current_player,
+										"offensive",
+										ball_overlay.get_court_location(),
+										api_calls.make_context(
+												home_team.getScore(),
 												away_team.getScore()));
 							}
+						}
+					}).create();
+			return alert_dialog;
+		case PLAYER_SHOT_TYPE_SELECT:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Select Shot Type")
+					.setItems(Constants.SHOT_OPTIONS, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							shot_type = null;
+							pts = 0;
+							if (which == 0) {
+								shot_type = "jump-shot";
+								pts = 3;
+							} else if (which == 1) {
+								shot_type = "jump-shot";
+								pts = 2;
+							} else if (which == 5) {
+								shot_type = "free-throw";
+								pts = 1;
+							} else {
+								shot_type = Constants.SHOT_OPTIONS[which]
+										.toString();
+								pts = 2;
+							}
+							if (make)
+								showDialog(CHECK_ASSISTED);
+							else
+								showDialog(CHECK_BLOCKED);
+						}
+					}).create();
+			return alert_dialog;
+		case PLAYER_TURNOVER_TYPE_SELECT:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Choose Turnover Type")
+					.setItems(Constants.TURNOVER_OPTIONS,
+							new OnClickListener() {
+								public void onClick(DialogInterface dialog,
+										int which) {
+									turn_type = Constants.TURNOVER_OPTIONS[which]
+											.toString();
+									showDialog(CHECK_FORCED);
+								}
+							}).create();
+			return alert_dialog;
+		case PLAYER_FOUL_TYPE_SELECT:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Choose Foul Type")
+					.setItems(Constants.FOUL_OPTIONS, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							foul_type = Constants.FOUL_OPTIONS[which]
+									.toString();
+							showDialog(CHECK_EJECTED);
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_ASSISTED:
+			alert_dialog = new AlertDialog.Builder(this).setTitle("Assisted?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == 0) {
+								populate_on_court(current_team);
+								showDialog(CHOOSE_ASSISTER);
+							} else {
+								sec_player = null;
+								showDialog(CHECK_FAST_BREAK);
+							}
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_BLOCKED:
+			alert_dialog = new AlertDialog.Builder(this).setTitle("Blocked?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == 0) {
+								if (current_team.getName().equals(
+										away_team.getName()))
+									populate_on_court(home_team);
+								else
+									populate_on_court(away_team);
+								showDialog(CHOOSE_BLOCKER);
+							} else {
+								sec_player = null;
+								showDialog(CHECK_FAST_BREAK);
+							}
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_FORCED:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Forced Turnover?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == 0) {
+								if (current_team.getName().equals(
+										away_team.getName()))
+									populate_on_court(home_team);
+								else
+									populate_on_court(away_team);
+								showDialog(CHOOSE_FORCER);
+							} else {
+								sec_player = null;
+								current_team.get_player_with_id(current_player)
+										.turnover();
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_turnover(
+										current_player,
+										sec_player,
+										turn_type,
+										ball_overlay.get_court_location(),
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+							}
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_EJECTED:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Player Ejected?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							ejected = which == 0;
+							showDialog(CHECK_DRAWN);
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_DRAWN:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Drawn by other player?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							if (which == 0) {
+								if (current_team.getName().equals(
+										away_team.getName())) {
+									populate_on_court(home_team);
+								} else {
+									populate_on_court(away_team);
+								}
+								showDialog(CHOOSE_DRAWER);
+							} else {
+								sec_player = null;
+								current_team.get_player_with_id(current_player)
+										.foul();
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_foul(
+										current_player,
+										sec_player,
+										foul_type,
+										ejected,
+										ball_overlay.get_court_location(),
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+							}
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_FAST_BREAK:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Fast Break?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							fast_break = which == 0;
+							if (make)
+								showDialog(CHECK_GOALTENDING);
+							else {
+								current_team.get_player_with_id(current_player)
+										.missed_shot();
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_missed_shot(
+										current_player,
+										sec_player,
+										shot_type,
+										pts,
+										fast_break,
+										ball_overlay.get_court_location(),
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+							}
+						}
+					}).create();
+			return alert_dialog;
+		case CHECK_GOALTENDING:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Goaltending?")
+					.setItems(yes_no, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							goaltending = which == 0;
+							current_team.get_player_with_id(current_player)
+									.made_shot(pts);
+							current_team.incrementScore(pts);
+							if (current_team.getName().equals(away_team.getName()))
+								away_score.setText("" + current_team.getScore());
+							else
+								home_score.setText("" + current_team.getScore());
+							showDialog(SUBMIT_ACTION);
+							if (make) {
+								api_calls.send_made_shot(
+										current_player,
+										sec_player,
+										shot_type,
+										pts,
+										fast_break,
+										goaltending,
+										ball_overlay.get_court_location(),
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+							}
+						}
+					}).create();
+			return alert_dialog;
+		case CHOOSE_ASSISTER:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Choose Assisting Player")
+					.setItems(players, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							String player_info = players[which].toString();
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							sec_player = current_team.get_player_with_jersey(
+									Integer.parseInt(jersey_num)).getId();
+							showDialog(CHECK_FAST_BREAK);
+						}
+					}).create();
+			return alert_dialog;
+		case CHOOSE_BLOCKER:
+			alert_dialog = new AlertDialog.Builder(this)
+					.setTitle("Choose Blocking Player")
+					.setItems(players, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							String player_info = players[which].toString();
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							if (current_team.getName().equals(
+									away_team.getName()))
+								sec_player = home_team.get_player_with_jersey(
+										Integer.parseInt(jersey_num)).getId();
+							else
+								sec_player = away_team.get_player_with_jersey(
+										Integer.parseInt(jersey_num)).getId();
+							showDialog(CHECK_FAST_BREAK);
+						}
+					}).create();
+			return alert_dialog;
+		case CHOOSE_FORCER:
+			alert_dialog = new AlertDialog.Builder(this).setTitle("Forced by")
+					.setItems(players, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							String player_info = players[which].toString();
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							if (current_team.getName().equals(
+									away_team.getName()))
+								sec_player = home_team.get_player_with_jersey(
+										Integer.parseInt(jersey_num)).getId();
+							else
+								sec_player = away_team.get_player_with_jersey(
+										Integer.parseInt(jersey_num)).getId();
+							current_team.get_player_with_id(current_player)
+									.turnover();
+							showDialog(SUBMIT_ACTION);
+							api_calls.send_turnover(current_player, sec_player,
+									turn_type, ball_overlay
+											.get_court_location(), api_calls
+											.make_context(home_team.getScore(),
+													away_team.getScore()));
+						}
+					}).create();
+			return alert_dialog;
+		case CHOOSE_DRAWER:
+			alert_dialog = new AlertDialog.Builder(this).setTitle("Drawn by")
+					.setItems(players, new OnClickListener() {
+						public void onClick(DialogInterface dialog, int which) {
+							String player_info = players[which].toString();
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							if (current_team.getName().equals(
+									away_team.getName()))
+								sec_player = home_team.get_player_with_jersey(
+										Integer.parseInt(jersey_num)).getId();
+							else
+								sec_player = away_team.get_player_with_jersey(
+										Integer.parseInt(jersey_num)).getId();
+							current_team.get_player_with_id(current_player)
+									.foul();
+							showDialog(SUBMIT_ACTION);
+							api_calls.send_foul(current_player, sec_player,
+									foul_type, ejected, ball_overlay
+											.get_court_location(), api_calls
+											.make_context(home_team.getScore(),
+													away_team.getScore()));
 						}
 					}).create();
 			return alert_dialog;
@@ -348,6 +699,26 @@ public class ScoreGameActivity extends Activity {
 			switch (which) {
 			case 0:
 				showDialog(PLAYER_REBOUND_TYPE_SELECT);
+				break;
+			case 1:
+				make = true;
+				showDialog(PLAYER_SHOT_TYPE_SELECT);
+				break;
+			case 2:
+				make = false;
+				showDialog(PLAYER_SHOT_TYPE_SELECT);
+				break;
+			case 3:
+				showDialog(PLAYER_TURNOVER_TYPE_SELECT);
+				break;
+			case 4:
+				showDialog(PLAYER_FOUL_TYPE_SELECT);
+				break;
+			case 5:
+				current_team = away_team;
+				populate_off_court(away_team);
+				showDialog(AWAY_PLAYER_SUBSTITUTION);
+				break;
 			}
 		}
 	}
@@ -364,6 +735,26 @@ public class ScoreGameActivity extends Activity {
 			switch (which) {
 			case 0:
 				showDialog(PLAYER_REBOUND_TYPE_SELECT);
+				break;
+			case 1:
+				make = true;
+				showDialog(PLAYER_SHOT_TYPE_SELECT);
+				break;
+			case 2:
+				make = false;
+				showDialog(PLAYER_SHOT_TYPE_SELECT);
+				break;
+			case 3:
+				showDialog(PLAYER_TURNOVER_TYPE_SELECT);
+				break;
+			case 4:
+				break;
+			// foul
+			case 5:
+				current_team = home_team;
+				populate_off_court(home_team);
+				showDialog(HOME_PLAYER_SUBSTITUTION);
+				break;
 			}
 
 		}
@@ -385,11 +776,12 @@ public class ScoreGameActivity extends Activity {
 			JSONObject response_obj = new JSONObject(gameData);
 			JSONObject game_obj = new JSONObject(response_obj.get("response")
 					.toString());
-			
-			if (response_obj.has("gameEvents"))
-				Log.d(TAG, response_obj.getJSONArray("gameEvents").toString());
-			else 
+
+			if (game_obj.has("gameSetupData")) {
+				Log.d(TAG, "Previous game data present.");
+			} else {
 				Log.d(TAG, "No game events");
+			}
 
 			home_team = new Team(game_obj.get("homeTeam").toString());
 			away_team = new Team(game_obj.get("awayTeam").toString());
@@ -422,7 +814,7 @@ public class ScoreGameActivity extends Activity {
 				away_team.get_player_with_jersey(Integer.parseInt(jersey_num))
 						.setOn_court(true);
 				starters[count] = trunc_name + "\n" + jersey_num;
-				away_starters[count] = away_team.get_player_at(i + 1).getId();
+				away_starters[count] = away_team.get_player(i + 1).getId();
 				count++;
 			}
 		}
@@ -456,7 +848,7 @@ public class ScoreGameActivity extends Activity {
 				home_team.get_player_with_jersey(Integer.parseInt(jersey_num))
 						.setOn_court(true);
 				starters[count] = trunc_name + "\n" + jersey_num;
-				home_starters[count] = home_team.get_player_at(i + 1).getId();
+				home_starters[count] = home_team.get_player(i + 1).getId();
 				count++;
 			}
 		}
@@ -492,6 +884,10 @@ public class ScoreGameActivity extends Activity {
 
 	}
 
+	/**
+	 * Fills players array with all players from team
+	 * @param team - Team to collect players from
+	 */
 	private void populate_players(Team team) {
 		ArrayList<Player> players_list = (ArrayList<Player>) team.getPlayers();
 		players = new CharSequence[players_list.size() - 1];
@@ -500,6 +896,76 @@ public class ScoreGameActivity extends Activity {
 			players[i] = players_list.get(i + 1).getLast_name() + " - "
 					+ players_list.get(i + 1).getJersey_number();
 		}
+	}
+
+	/**
+	 * Fills players array with all players from team currently on the court
+	 * @param team - Team to collect players from
+	 */
+	private void populate_on_court(Team team) {
+		ArrayList<Player> players_list = (ArrayList<Player>) team.getPlayers();
+		ArrayList<Player> on_court = new ArrayList<Player>();
+
+		for (int i = 1; i < players_list.size(); i++) {
+			if (players_list.get(i).isOn_court())
+				on_court.add(players_list.get(i));
+		}
+
+		players = new CharSequence[on_court.size()];
+		checked = new boolean[players.length];
+		for (int i = 0; i < on_court.size(); i++) {
+			players[i] = on_court.get(i).getLast_name() + " - "
+					+ on_court.get(i).getJersey_number();
+		}
+	}
+
+	/**
+	 * Fills players array with all players from team currently off court
+	 * @param team - Team to collect players from
+	 */
+	private void populate_off_court(Team team) {
+		ArrayList<Player> players_list = (ArrayList<Player>) team.getPlayers();
+		ArrayList<Player> off_court = new ArrayList<Player>();
+
+		for (int i = 1; i < players_list.size(); i++) {
+			if (!players_list.get(i).isOn_court()) {
+				off_court.add(players_list.get(i));
+			}
+		}
+
+		players = new CharSequence[off_court.size()];
+		checked = new boolean[players.length];
+		for (int i = 0; i < off_court.size(); i++) {
+			players[i] = off_court.get(i).getLast_name() + " - "
+					+ off_court.get(i).getJersey_number();
+		}
+	}
+
+	/**
+	 * Wipes references to all existing dialogs
+	 */
+	private void remove_dialogs() {
+		removeDialog(AWAY_PLAYER_ACTION);
+		removeDialog(AWAY_PLAYER_SUBSTITUTION);
+		removeDialog(CHECK_ASSISTED);
+		removeDialog(CHECK_FAST_BREAK);
+		removeDialog(CHECK_GOALTENDING);
+		removeDialog(CHECK_BLOCKED);
+		removeDialog(CHOOSE_BLOCKER);
+		removeDialog(CHOOSE_ASSISTER);
+		removeDialog(HOME_PLAYER_ACTION);
+		removeDialog(HOME_PLAYER_SUBSTITUTION);
+		removeDialog(LOAD_GAMES_PROGRESS);
+		removeDialog(PLAYER_REBOUND_TYPE_SELECT);
+		removeDialog(PLAYER_SHOT_TYPE_SELECT);
+		removeDialog(SELECT_AWAY_STARTERS);
+		removeDialog(SELECT_HOME_STARTERS);
+		removeDialog(SUBMIT_ACTION);
+		removeDialog(SUBMIT_GAME_DATA);
+		removeDialog(CHECK_DRAWN);
+		removeDialog(CHOOSE_DRAWER);
+		removeDialog(CHECK_EJECTED);
+		removeDialog(PLAYER_FOUL_TYPE_SELECT);
 	}
 
 	/**
@@ -522,14 +988,14 @@ public class ScoreGameActivity extends Activity {
 						"Received result length: "
 								+ intent.getStringExtra("result").length());
 				populateFields(intent.getStringExtra("result"));
-				
+
 				break;
 			case 1:
 				dismissDialog(SUBMIT_GAME_DATA);
 				break;
 			case 2:
 				dismissDialog(SUBMIT_ACTION);
-
+				break;
 			}
 		}
 
@@ -546,25 +1012,30 @@ public class ScoreGameActivity extends Activity {
 	private class AwayPlayerListener implements
 			android.view.View.OnClickListener {
 		public void onClick(View v) {
+			remove_dialogs();
 			TextView temp = (TextView) v;
 			if (!temp.getText().equals("!")) {
 				String text = temp.getText().toString();
 				String jersey = text.substring(text.indexOf("\n") + 1);
 				current_player = away_team.get_player_with_jersey(
-						Integer.parseInt(jersey)).getLast_name();
+						Integer.parseInt(jersey)).getId();
 				current_team = away_team;
 				current = temp;
-				Log.d(TAG, "jersey/currentplayer: " + jersey + "/"
-						+ current_player);
-				if (alert_dialog != null)
-					alert_dialog.setTitle("Action for " + current_player);
+				Log.d(TAG, "jersey/currentplayer: "
+						+ jersey
+						+ "/"
+						+ current_team.get_player_with_id(current_player)
+								.getLast_name());
+				alert_dialog = null;
+				away_dialog = null;
 				showDialog(AWAY_PLAYER_ACTION);
 			} else {
-				current_player = "!";
+				current_player = null;
 				current_team = away_team;
 				current = temp;
-				populate_players(away_team);
+				populate_off_court(away_team);
 				alert_dialog = null;
+				away_dialog = null;
 				showDialog(AWAY_PLAYER_SUBSTITUTION);
 			}
 		}
@@ -582,27 +1053,49 @@ public class ScoreGameActivity extends Activity {
 			android.view.View.OnClickListener {
 
 		public void onClick(View v) {
+			remove_dialogs();
 			TextView temp = (TextView) v;
 			if (!temp.getText().equals("!")) {
 				String text = temp.getText().toString();
 				String jersey = text.substring(text.indexOf("\n") + 1);
 				current_player = home_team.get_player_with_jersey(
-						Integer.parseInt(jersey)).getLast_name();
+						Integer.parseInt(jersey)).getId();
 				current_team = home_team;
 				current = temp;
-				Log.d(TAG, "jersey/currentplayer: " + jersey + "/"
-						+ current_player);
-				if (alert_dialog != null)
-					alert_dialog.setTitle("Action for " + current_player);
+				Log.d(TAG, "jersey/currentplayer: "
+						+ jersey
+						+ "/"
+						+ current_team.get_player_with_id(current_player)
+								.getLast_name());
 				showDialog(HOME_PLAYER_ACTION);
 			} else {
-				current_player = "!";
+				current_player = null;
 				current_team = home_team;
 				current = temp;
-				populate_players(home_team);
-				alert_dialog = null;
+				populate_off_court(home_team);
 				showDialog(HOME_PLAYER_SUBSTITUTION);
 			}
 		}
+	}
+
+	/**
+	 * OnClickListener for each team's Action button
+	 * @author Steve
+	 *
+	 */
+	private class TeamActionListener implements
+			android.view.View.OnClickListener {
+
+		public void onClick(View v) {
+			Log.d(TAG, "homescore: " + home_team.getScore());
+			Log.d(TAG, "awayscore: " + away_team.getScore());
+
+			for (int i = 1; i < away_team.getPlayers().size(); i++) {
+				Log.d(TAG, "player " + i + " rbs/pts: "
+						+ away_team.getPlayers().get(i).getTotRbs() + "/"
+						+ away_team.getPlayers().get(i).getPts());
+			}
+		}
+
 	}
 }

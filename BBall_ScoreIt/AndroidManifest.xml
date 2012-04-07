@@ -26,6 +26,7 @@
         <activity 
             android:name=".ScoreGameActivity"
             android:label="Score Game"
+            android:configChanges="orientation"
             android:screenOrientation="landscape">            
         </activity>
         <service 

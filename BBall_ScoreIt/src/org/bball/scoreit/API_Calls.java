@@ -42,15 +42,6 @@ public class API_Calls {
 		return temp;
 	}
 
-	static {
-		Constants.PLAYER_OPTIONS.put("Made Shot",
-				"http://api.espnalps.com/v0/cbb/madeShot");
-		Constants.PLAYER_OPTIONS.put("Missed Shot",
-				"http://api.espnalps.com/v0/cbb/missedShot");
-		Constants.PLAYER_OPTIONS.put("Rebound",
-				"http://api.espnalps.com/v0/cbb/rebound");
-	}
-
 	public API_Calls(Context context) {
 		try {
 			md = MessageDigest.getInstance("MD5");
@@ -188,6 +179,41 @@ public class API_Calls {
 	}
 
 	/**
+	 * Submits substitution to server with given parameters.
+	 * 
+	 * @param in_player
+	 *            - id of player entering game.
+	 * @param out_player
+	 *            - id of player exiting game.
+	 * @param con
+	 *            - properly formatted context
+	 */
+	public void send_substitution(String in_player, String out_player,
+			JSONObject con) {
+		JSONObject sub_payload = new JSONObject();
+		try {
+			sub_payload.put("gameId", game_id);
+			sub_payload.put("exitingPlayer", out_player);
+			sub_payload.put("enteringPlayer", in_player);
+			sub_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG,
+					"Unable to create substitution payload: " + e.getMessage());
+		}
+
+		String sub_url = Constants.SUB_URL + "?token=" + token + "&signature="
+				+ getSignature() + "&key=" + Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, sub_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, sub_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
 	 * Submits rebound to server with given parameter.
 	 * 
 	 * @param playerId
@@ -197,8 +223,11 @@ public class API_Calls {
 	 * @param location
 	 *            - location on court of rebound; see
 	 *            BallOverlay.get_court_location()
+	 * @param con
+	 *            - context document; see API_Calls.make_context()
 	 */
-	public void send_rebound(String playerId, String type, JSONArray location, JSONObject con) {
+	public void send_rebound(String playerId, String type, JSONArray location,
+			JSONObject con) {
 		JSONObject rebound_payload = new JSONObject();
 		try {
 			rebound_payload.put("gameId", game_id);
@@ -208,7 +237,7 @@ public class API_Calls {
 			rebound_payload.put("location", location);
 			rebound_payload.put("context", con);
 		} catch (Exception e) {
-			Log.d(TAG, "Unable to create rebound_payload: " + e.getMessage());
+			Log.e(TAG, "Unable to create rebound_payload: " + e.getMessage());
 		}
 		String rebound_url = Constants.REBOUND_URL + "?token=" + token
 				+ "&signature=" + getSignature() + "&key="
@@ -223,6 +252,205 @@ public class API_Calls {
 		context.startService(service_intent);
 	}
 
+	/**
+	 * Send made shot to server.
+	 * 
+	 * @param shooter
+	 *            - id of shooter
+	 * @param assister
+	 *            - id of assisting player; null if none
+	 * @param type
+	 *            - type of shot; see Constants.SHOT_OPTIONS
+	 * @param pts
+	 *            - pt value of shot
+	 * @param fb
+	 *            - fast-break opportunity
+	 * @param goaltending
+	 *            - goaltending committed
+	 * @param location
+	 *            - location of shot on court; see
+	 *            BallOverlay.get_court_location()
+	 * @param con
+	 *            - context document; see API_Calls.make_context()
+	 */
+	public void send_made_shot(String shooter, String assister, String type,
+			int pts, boolean fb, boolean goaltending, JSONArray location,
+			JSONObject con) {
+		JSONObject shot_payload = new JSONObject();
+		try {
+			shot_payload.put("gameId", game_id);
+			shot_payload.put("shooter", shooter);
+			if (assister != null)
+				shot_payload.put("assistedBy", assister);
+			shot_payload.put("shotType", type);
+			shot_payload.put("pointsScored", pts);
+			shot_payload.put("fastBreakOpportunity", fb);
+			shot_payload.put("goaltending", goaltending);
+			shot_payload.put("location", location);
+			shot_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to create shot_payload: " + e.getMessage());
+		}
+
+		String shot_url = Constants.MADESHOT_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, shot_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, shot_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Sends missed shot to server
+	 * 
+	 * @param shooter
+	 *            - id of shooter
+	 * @param blocker
+	 *            - id of blocking player; null if none
+	 * @param type
+	 *            - type of shot; see Constants.SHOT_OPTIONS
+	 * @param pts
+	 *            - point value of shot
+	 * @param fb
+	 *            - fast break opportunity
+	 * @param location
+	 *            - location of shot on court; see
+	 *            BallOverlay.get_court_location();
+	 * @param con
+	 *            - context document; see API_Calls.make_context();
+	 */
+	public void send_missed_shot(String shooter, String blocker, String type,
+			int pts, boolean fb, JSONArray location, JSONObject con) {
+		JSONObject shot_payload = new JSONObject();
+		try {
+			shot_payload.put("gameId", game_id);
+			shot_payload.put("shooter", shooter);
+			if (blocker != null)
+				shot_payload.put("blockedBy", blocker);
+			shot_payload.put("shotType", type);
+			shot_payload.put("pointsAttempted", pts);
+			shot_payload.put("fastBreakOpportunity", fb);
+			shot_payload.put("location", location);
+			shot_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG,
+					"Unable to create missed shot payload: " + e.getMessage());
+		}
+
+		String shot_url = Constants.MISSEDSHOT_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, shot_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, shot_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Sends turnover to server.
+	 * 
+	 * @param committer
+	 *            - id of player who committed turnover
+	 * @param forcer
+	 *            - id of player who forced turnover; null if none
+	 * @param type
+	 *            - type of turnover; see Constants.TURNOVER_OPTIONS
+	 * @param loc
+	 *            - location of turnover; see BallOverlay.get_court_location()
+	 * @param con
+	 *            - context document; see API_Calls.make_context()
+	 */
+	public void send_turnover(String committer, String forcer, String type,
+			JSONArray loc, JSONObject con) {
+		JSONObject turnover_payload = new JSONObject();
+		try {
+			turnover_payload.put("gameId", game_id);
+			turnover_payload.put("committedBy", committer);
+			if (forcer != null)
+				turnover_payload.put("forcedBy", forcer);
+			turnover_payload.put("turnoverType", type);
+			turnover_payload.put("location", loc);
+			turnover_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to create turnover_payload: " + e.getMessage());
+		}
+
+		String to_url = Constants.TURNOVER_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, turnover_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, to_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Sends foul document to server
+	 * 
+	 * @param committer
+	 *            - id of player who committed foul
+	 * @param drawer
+	 *            - id of player who drew foul; null if none
+	 * @param type
+	 *            - type of foul; see Constants.FOUL_OPTIONS
+	 * @param ejected
+	 *            - whether player is ejected or not
+	 * @param loc
+	 *            - location of foul; see BallOverlay.get_court_location()
+	 * @param con
+	 *            - context document; see API_Calls.make_context()
+	 */
+	public void send_foul(String committer, String drawer, String type,
+			boolean ejected, JSONArray loc, JSONObject con) {
+		JSONObject foul_payload = new JSONObject();
+		try {
+			foul_payload.put("gameId", game_id);
+			foul_payload.put("committedBy", committer);
+			if (drawer != null)
+				foul_payload.put("drewBy", drawer);
+			foul_payload.put("foulType", type);
+			foul_payload.put("ejected", ejected);
+			foul_payload.put("location", loc);
+			foul_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to construct foul_payload: " + e.getMessage());
+		}
+
+		String foul_url = Constants.FOUL_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, foul_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, foul_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Creates context document from given scores
+	 * 
+	 * @param homeScore
+	 *            - score of home team
+	 * @param awayScore
+	 *            - score of away team
+	 * @return properly formatted context document to send to server
+	 */
 	public JSONObject make_context(int homeScore, int awayScore) {
 		try {
 			JSONObject temp = new JSONObject();

@@ -34,20 +34,17 @@ public class BallOverlay extends View {
 				+ ball.getHeight() / 2);
 		canvas.drawBitmap(ball, src, dst, null);
 
-		Log.d(TAG,
-				"canvas width/height: " + canvas.getWidth() + "/"
-						+ canvas.getHeight());
 		Log.d(TAG, "iv width/height: " + width + "/" + height);
 		Log.d(TAG, "x/y: " + x + "/" + y);
 		super.onDraw(canvas);
 	}
 
 	public void setX(float x) {
-		this.x = x;
+		this.x = Math.max(0, x);
 	}
 
 	public void setY(float y) {
-		this.y = y;
+		this.y = Math.max(0, y);
 	}
 
 	public void setWidth(int width) {

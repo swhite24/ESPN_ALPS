@@ -11,6 +11,7 @@ public class Player {
 	private String id;
 	private int jersey_number;
 	private int FGM, FGA, FTM, FTA, assists, defRB, offRB, totRB, blocks, pts;
+	private int turnovers, fouls;
 	private boolean is_team_player, on_court = false;
 	
 	/**
@@ -31,6 +32,7 @@ public class Player {
 			Log.e(TAG, "Couldn't construct player");
 		}
 		FGM = FGA = FTM = assists = defRB = offRB = totRB = blocks = pts = 0;
+		turnovers = fouls = 0;
 	}
 
 	public String getFirst_name() {
@@ -51,6 +53,14 @@ public class Player {
 
 	public int getJersey_number() {
 		return jersey_number;
+	}
+	
+	public int getTotRbs(){
+		return totRB;
+	}
+	
+	public int getPts(){
+		return pts;
 	}
 
 	public boolean isIs_team_player() {
@@ -75,5 +85,21 @@ public class Player {
 		totRB++;
 	}
 	
+	public void made_shot(int pts){
+		this.pts += pts;
+		FGA++;
+		FGM++;
+	}
 	
+	public void missed_shot(){
+		FGA++;
+	}
+	
+	public void turnover(){
+		turnovers++;
+	}
+	
+	public void foul(){
+		fouls++;
+	}
 }

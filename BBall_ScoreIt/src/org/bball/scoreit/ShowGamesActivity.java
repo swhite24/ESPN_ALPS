@@ -93,8 +93,9 @@ public class ShowGamesActivity extends ListActivity {
 
 		Calendar initial = Calendar.getInstance();
 		Calendar end = Calendar.getInstance();
-		initial.set(Calendar.DAY_OF_YEAR, initial.get(Calendar.DAY_OF_YEAR) - 7);
-		end.set(Calendar.DAY_OF_YEAR, end.get(Calendar.DAY_OF_YEAR) + 30);
+		initial.set(Calendar.DAY_OF_YEAR, 1);
+		initial.set(Calendar.YEAR, 2011);
+		end.set(Calendar.DAY_OF_YEAR, 365);
 
 		api_calls.get_games(Constants.df.format(initial.getTime()),
 				Constants.df.format(end.getTime()));

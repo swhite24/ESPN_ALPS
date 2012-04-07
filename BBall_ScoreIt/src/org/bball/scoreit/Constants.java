@@ -1,7 +1,6 @@
 package org.bball.scoreit;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 
 /**
  * Interface containing commonly used constants.
@@ -23,8 +22,12 @@ public interface Constants {
 	public static final String GAMES = "http://api.espnalps.com/v0/cbb/games";
 	public static final String GET_GAME_DATA = "http://api.espnalps.com/v0/cbb/getGameData";
 	public static final String SET_GAME_DATA = "http://api.espnalps.com/v0/cbb/setGameData";
+	public static final String SUB_URL = "http://api.espnalps.com/v0/cbb/substitution";
 	public static final String REBOUND_URL = "http://api.espnalps.com/v0/cbb/rebound";
-	public static final HashMap<String, String> PLAYER_OPTIONS = new HashMap<String, String>();
+	public static final String MADESHOT_URL = "http://api.espnalps.com/v0/cbb/madeShot";
+	public static final String MISSEDSHOT_URL = "http://api.espnalps.com/v0/cbb/missedShot";
+	public static final String TURNOVER_URL = "http://api.espnalps.com/v0/cbb/turnover";
+	public static final String FOUL_URL = "http://api.espnalps.com/v0/cbb/foul";
 
 	// Intents
 	public static final String LOGIN_ACTIVITY = "org.bball.scoreit.LoginActivity";
@@ -41,7 +44,18 @@ public interface Constants {
 	// account info
 	public static final String USERNAME = "swhite24";
 	public static final String PASSWORD = "!WVUalps";
-	
-	public static final CharSequence[] REBOUND_OPTIONS = {"defensive", "offensive"};
+
+	// options for various actions
+	public static final CharSequence[] REBOUND_OPTIONS = { "defensive",
+			"offensive" };
+	public static final CharSequence[] SHOT_OPTIONS = { "3pt jump-shot",
+			"2pt jump-shot", "layup", "dunk", "tip-in", "free-throw" };
+	public static final CharSequence[] FOUL_OPTIONS = { "blocking", "charging",
+			"shooting", "offensive", "personal", "technical", "flagrant" };
+	public static final CharSequence[] TURNOVER_OPTIONS = { "traveling",
+			"lost-ball", "offensive-foul", "out-of-bounds", "violation",
+			"offensive-goaltending", "thrown-away" };
+	public static final CharSequence[] TIMEOUT_OPTIONS = { "team", "official",
+			"media" };
 
 }
