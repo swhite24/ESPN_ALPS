@@ -54,6 +54,10 @@ public class BallOverlay extends View {
 	public void setHeight(int height) {
 		this.height = height;
 	}
+	
+	public int get_width(){
+		return width;
+	}
 
 	public JSONArray get_court_location() {
 		float x_ratio = x / width;

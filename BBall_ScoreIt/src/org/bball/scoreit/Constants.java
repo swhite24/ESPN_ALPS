@@ -28,6 +28,10 @@ public interface Constants {
 	public static final String MISSEDSHOT_URL = "http://api.espnalps.com/v0/cbb/missedShot";
 	public static final String TURNOVER_URL = "http://api.espnalps.com/v0/cbb/turnover";
 	public static final String FOUL_URL = "http://api.espnalps.com/v0/cbb/foul";
+	public static final String TIMEOUT_URL = "http://api.espnalps.com/v0/cbb/timeout";
+	public static final String JUMPBALL_URL = "http://api.espnalps.com/v0/cbb/jumpBall";
+	public static final String START_PERIOD_URL = "http://api.espnalps.com/v0/cbb/periodStart";
+	public static final String END_PERIOD_URL = "http://api.espnalps.com/v0/cbb/periodEnd";
 
 	// Intents
 	public static final String LOGIN_ACTIVITY = "org.bball.scoreit.LoginActivity";
@@ -57,5 +61,9 @@ public interface Constants {
 			"offensive-goaltending", "thrown-away" };
 	public static final CharSequence[] TIMEOUT_OPTIONS = { "team", "official",
 			"media" };
+	public static final CharSequence[] TEAM_ACTION_OPTIONS = {
+			"Team Technical Foul", "Team Rebound", "Timeout" };
+	public static final CharSequence[] OFFICIAL_OPTIONS = { "Jump Ball",
+			"Period Start", "Period End", "Official Timeout", "Media Timeout" };
 
 }

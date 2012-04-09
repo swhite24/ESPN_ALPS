@@ -443,6 +443,136 @@ public class API_Calls {
 	}
 
 	/**
+	 * Sends timeout document to server.
+	 * 
+	 * @param teamid
+	 *            - id of team calling timeout; null if official timeout
+	 * @param type
+	 *            - type of timeout; see Constants.TIMEOUT_OPTIONS
+	 * @param con
+	 *            - context document; see API_Calls.make_context()
+	 */
+	public void send_timeout(String teamid, String type, JSONObject con) {
+		JSONObject timeout_payload = new JSONObject();
+		try {
+			timeout_payload.put("gameId", game_id);
+			if (teamid != null)
+				timeout_payload.put("timeoutTeam", teamid);
+			timeout_payload.put("timeoutType", type);
+			timeout_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to construct timeout_payload: " + e.getMessage());
+		}
+
+		String timeout_url = Constants.TIMEOUT_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, timeout_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, timeout_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Sends jumpball document to server
+	 * 
+	 * @param homeid
+	 *            - id of participating home player
+	 * @param awayid
+	 *            - id of participating away player
+	 * @param winner
+	 *            - id of winner
+	 * @param loc
+	 *            - location on court; see BallOverlay.get_court_location()
+	 * @param con
+	 *            - context document; see API_Calls.make_context()
+	 */
+	public void send_jumpball(String homeid, String awayid, String winner,
+			JSONArray loc, JSONObject con) {
+		JSONObject jumpball_payload = new JSONObject();
+		try {
+			jumpball_payload.put("gameId", game_id);
+			jumpball_payload.put("homePlayer", homeid);
+			jumpball_payload.put("awayPlayer", awayid);
+			jumpball_payload.put("winner", winner);
+			jumpball_payload.put("location", loc);
+			jumpball_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG, "Couldn't construct jumpball_payload: " + e.getMessage());
+		}
+
+		String jb_url = Constants.JUMPBALL_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, jumpball_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, jb_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
+	 * Sends period start document to server
+	 * @param period - period to start
+	 * @param con - context document; see API_Calls.make_context()
+	 */
+	public void send_period_start(int period, JSONObject con) {
+		JSONObject start_payload = new JSONObject();
+		try {
+			start_payload.put("gameId", game_id);
+			start_payload.put("period", period);
+			start_payload.put("context", con);
+		} catch (Exception e) {
+			Log.e(TAG, "Unable to construct start_payload:" + e.getMessage());
+		}
+		String start_url = Constants.START_PERIOD_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+		
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, start_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, start_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+	
+	/**
+	 * Sends end period document to server
+	 * @param period - period to end
+	 * @param con - context document; see API_Calls.make_context()
+	 */
+	public void send_period_end(int period, JSONObject con){
+		JSONObject end_payload = new JSONObject();
+		try{
+			end_payload.put("gameId", game_id);
+			end_payload.put("period", period);
+			end_payload.put("context", con);
+		} catch (Exception e){
+			Log.e(TAG, "Unable to construct end_payload: " + e.getMessage());
+		}
+		String end_url = Constants.END_PERIOD_URL + "?token=" + token
+				+ "&signature=" + getSignature() + "&key="
+				+ Constants.ACCESS_KEY;
+
+		Intent service_intent = new Intent(context, HTTPRequest.class);
+		service_intent.putExtra(Constants.PAYLOAD, end_payload.toString());
+		service_intent.putExtra(Constants.TYPE, 0);
+		service_intent.putExtra(Constants.API_CALL, 2);
+		service_intent.putExtra(Constants.URL, end_url);
+		service_intent.putExtra(Constants.METHOD_ID, 2);
+		context.startService(service_intent);
+	}
+
+	/**
 	 * Creates context document from given scores
 	 * 
 	 * @param homeScore

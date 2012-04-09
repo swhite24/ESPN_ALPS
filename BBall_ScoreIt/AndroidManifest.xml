@@ -21,14 +21,17 @@
         </activity>
         <activity 
             android:name=".ShowGamesActivity"
-            android:label="Current Games" >            
-        </activity>
+            android:label="Current Games" />
         <activity 
             android:name=".ScoreGameActivity"
             android:label="Score Game"
             android:configChanges="orientation"
-            android:screenOrientation="landscape">            
-        </activity>
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".ShowStatsActivity"
+            android:label="Stats"
+            android:screenOrientation="landscape" 
+            android:theme="@android:style/Theme.Dialog" />
         <service 
             android:enabled="true"
             android:name=".HTTPRequest">            

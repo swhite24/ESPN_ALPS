@@ -55,12 +55,44 @@ public class Player {
 		return jersey_number;
 	}
 	
+	public int getTurnovers() {
+		return turnovers;
+	}
+
 	public int getTotRbs(){
 		return totRB;
 	}
 	
 	public int getPts(){
 		return pts;
+	}	
+
+	public int getFGM() {
+		return FGM;
+	}
+
+	public int getFGA() {
+		return FGA;
+	}
+
+	public int getFTM() {
+		return FTM;
+	}
+
+	public int getFTA() {
+		return FTA;
+	}
+
+	public int getAssists() {
+		return assists;
+	}
+
+	public int getBlocks() {
+		return blocks;
+	}
+
+	public int getFouls() {
+		return fouls;
 	}
 
 	public boolean isIs_team_player() {
@@ -69,6 +101,10 @@ public class Player {
 
 	public boolean isOn_court() {
 		return on_court;
+	}
+	
+	public boolean isEligible(){
+		return fouls < 5;
 	}
 
 	public void setOn_court(boolean on_court) {
@@ -89,6 +125,24 @@ public class Player {
 		this.pts += pts;
 		FGA++;
 		FGM++;
+	}
+	
+	public void made_ft(){
+		this.pts += 1;
+		FTM++;
+		FTA++;
+	}
+	
+	public void missed_ft(){
+		FTA++;
+	}
+	
+	public void assist(){
+		assists++;
+	}
+	
+	public void block(){
+		blocks++;
 	}
 	
 	public void missed_shot(){

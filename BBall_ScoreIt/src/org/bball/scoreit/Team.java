@@ -14,7 +14,7 @@ public class Team {
 	private String id;
 	private String name;
 	private int score = 0, TOs;
-	List<Player> players;
+	private List<Player> players;
 	
 	/**
 	 * Team constructor which extracts JSONObject from json_string and
@@ -64,6 +64,14 @@ public class Team {
 	public Player get_player_with_id(String id){
 		for (int i = 0; i < players.size(); i++){
 			if (get_player(i).getId().equals(id))
+				return get_player(i);
+		}
+		return null;
+	}
+	
+	public Player get_team_player(){
+		for (int i = 0; i < players.size(); i++){
+			if (get_player(i).isIs_team_player())
 				return get_player(i);
 		}
 		return null;
