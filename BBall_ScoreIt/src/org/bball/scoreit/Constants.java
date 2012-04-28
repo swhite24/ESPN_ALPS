@@ -56,7 +56,7 @@ public interface Constants {
 	public static final CharSequence[] SHOT_OPTIONS = { "3pt jump-shot",
 			"2pt jump-shot", "layup", "dunk", "tip-in", "free-throw" };
 	public static final String[] SHOT_TYPES = { "3pt jump-shot",
-		"2pt jump-shot", "layup", "dunk", "tip-in", "free-throw" };
+			"2pt jump-shot", "layup", "dunk", "tip-in", "free-throw" };
 	public static final CharSequence[] FOUL_OPTIONS = { "blocking", "charging",
 			"shooting", "offensive", "personal", "technical", "flagrant" };
 	public static final CharSequence[] TURNOVER_OPTIONS = { "traveling",
@@ -66,7 +66,11 @@ public interface Constants {
 			"media" };
 	public static final CharSequence[] TEAM_ACTION_OPTIONS = {
 			"Team Technical Foul", "Team Rebound", "Timeout" };
+	public static final String[] TEAM_ACTIONS = { "Team Technical Foul",
+			"Team Rebound", "Timeout" };
 	public static final CharSequence[] OFFICIAL_OPTIONS = { "Jump Ball",
 			"Period Start", "Period End", "Official Timeout", "Media Timeout" };
+	public static final String[] OFFICIAL_ACTIONS = { "Jump Ball",
+		"Period Start", "Period End", "Official Timeout", "Media Timeout" };
 
 }
