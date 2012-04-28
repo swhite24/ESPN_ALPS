@@ -8,6 +8,12 @@
 package org.bball.scoreit;
 
 public final class R {
+    public static final class array {
+        public static final int foul_types=0x7f050003;
+        public static final int reb_types=0x7f050001;
+        public static final int shot_types=0x7f050000;
+        public static final int turnover_types=0x7f050002;
+    }
     public static final class attr {
     }
     public static final class drawable {
@@ -25,51 +31,106 @@ public final class R {
         public static final int submit_btn=0x7f02000b;
     }
     public static final class id {
-        public static final int game_item_location_tv=0x7f070002;
-        public static final int game_item_separator=0x7f070000;
-        public static final int game_item_time_tv=0x7f070003;
-        public static final int game_item_vs_tv=0x7f070001;
-        public static final int login_password_et=0x7f070005;
-        public static final int login_remember_cb=0x7f070006;
-        public static final int login_submit_btn=0x7f070007;
-        public static final int login_username_et=0x7f070004;
-        public static final int menu_official_action=0x7f07001c;
-        public static final int menu_show_stats=0x7f07001d;
-        public static final int score_game_away_1=0x7f070008;
-        public static final int score_game_away_2=0x7f070009;
-        public static final int score_game_away_3=0x7f07000a;
-        public static final int score_game_away_4=0x7f07000b;
-        public static final int score_game_away_5=0x7f07000c;
-        public static final int score_game_away_action=0x7f07000e;
-        public static final int score_game_away_score=0x7f07000f;
-        public static final int score_game_away_team_tv=0x7f07000d;
-        public static final int score_game_ball_overlay=0x7f070015;
-        public static final int score_game_court=0x7f070014;
-        public static final int score_game_home_1=0x7f070016;
-        public static final int score_game_home_2=0x7f070017;
-        public static final int score_game_home_3=0x7f070018;
-        public static final int score_game_home_4=0x7f070019;
-        public static final int score_game_home_5=0x7f07001a;
-        public static final int score_game_home_action=0x7f070012;
-        public static final int score_game_home_score=0x7f070013;
-        public static final int score_game_home_team_tv=0x7f070011;
-        public static final int score_game_period_indicator=0x7f070010;
-        public static final int show_stats_ll=0x7f07001b;
+        public static final int action_item_text=0x7f080002;
+        public static final int empty_sub_lv=0x7f080003;
+        public static final int empty_sub_right=0x7f080004;
+        public static final int foul_drawn=0x7f080007;
+        public static final int foul_drawn_by=0x7f080009;
+        public static final int foul_drawn_tv=0x7f080008;
+        public static final int foul_ejected=0x7f080006;
+        public static final int foul_submit_btn=0x7f08000a;
+        public static final int foul_type=0x7f080005;
+        public static final int game_item_location_tv=0x7f08000d;
+        public static final int game_item_separator=0x7f08000b;
+        public static final int game_item_time_tv=0x7f08000e;
+        public static final int game_item_vs_tv=0x7f08000c;
+        public static final int login_password_et=0x7f080017;
+        public static final int login_remember_cb=0x7f080018;
+        public static final int login_submit_btn=0x7f080019;
+        public static final int login_username_et=0x7f080016;
+        public static final int made_shot_assisted=0x7f080012;
+        public static final int made_shot_assisted_spin=0x7f080014;
+        public static final int made_shot_assisted_tv=0x7f080013;
+        public static final int made_shot_fb=0x7f080010;
+        public static final int made_shot_gt=0x7f080011;
+        public static final int made_shot_submit_btn=0x7f080015;
+        public static final int made_shot_type=0x7f08000f;
+        public static final int menu_official_action=0x7f08003e;
+        public static final int menu_show_stats=0x7f08003f;
+        public static final int missed_shot_blocked=0x7f08001c;
+        public static final int missed_shot_blocked_spin=0x7f08001e;
+        public static final int missed_shot_blocked_tv=0x7f08001d;
+        public static final int missed_shot_fb=0x7f08001b;
+        public static final int missed_shot_submit_btn=0x7f08001f;
+        public static final int missed_shot_type=0x7f08001a;
+        public static final int rebound_submit_btn=0x7f080021;
+        public static final int rebound_type=0x7f080020;
+        public static final int score_game_away_1=0x7f080022;
+        public static final int score_game_away_2=0x7f080023;
+        public static final int score_game_away_3=0x7f080024;
+        public static final int score_game_away_4=0x7f080025;
+        public static final int score_game_away_5=0x7f080026;
+        public static final int score_game_away_action=0x7f080028;
+        public static final int score_game_away_score=0x7f080029;
+        public static final int score_game_away_team_tv=0x7f080027;
+        public static final int score_game_ball_overlay=0x7f08002f;
+        public static final int score_game_court=0x7f08002e;
+        public static final int score_game_home_1=0x7f080030;
+        public static final int score_game_home_2=0x7f080031;
+        public static final int score_game_home_3=0x7f080032;
+        public static final int score_game_home_4=0x7f080033;
+        public static final int score_game_home_5=0x7f080034;
+        public static final int score_game_home_action=0x7f08002c;
+        public static final int score_game_home_score=0x7f08002d;
+        public static final int score_game_home_team_tv=0x7f08002b;
+        public static final int score_game_period_indicator=0x7f08002a;
+        public static final int shot_d_lv_left=0x7f080000;
+        public static final int shot_d_right=0x7f080001;
+        public static final int show_stats_ll=0x7f080035;
+        public static final int sub_players=0x7f080037;
+        public static final int sub_prompt=0x7f080036;
+        public static final int sub_submit_btn=0x7f080038;
+        public static final int turnover_forced=0x7f08003a;
+        public static final int turnover_forced_tv=0x7f08003b;
+        public static final int turnover_forcer=0x7f08003c;
+        public static final int turnover_submit_btn=0x7f08003d;
+        public static final int turnover_type=0x7f080039;
     }
     public static final class layout {
-        public static final int game_item=0x7f030000;
-        public static final int list_games=0x7f030001;
-        public static final int main=0x7f030002;
-        public static final int score_game=0x7f030003;
-        public static final int showstats=0x7f030004;
+        public static final int action_dialog=0x7f030000;
+        public static final int action_item=0x7f030001;
+        public static final int empty_sub=0x7f030002;
+        public static final int foul=0x7f030003;
+        public static final int game_item=0x7f030004;
+        public static final int list_games=0x7f030005;
+        public static final int made_shot=0x7f030006;
+        public static final int main=0x7f030007;
+        public static final int missed_shot=0x7f030008;
+        public static final int rebound=0x7f030009;
+        public static final int score_game=0x7f03000a;
+        public static final int showstats=0x7f03000b;
+        public static final int substitution=0x7f03000c;
+        public static final int turnover=0x7f03000d;
     }
     public static final class menu {
-        public static final int score_game_menu=0x7f060000;
+        public static final int score_game_menu=0x7f070000;
     }
     public static final class string {
         public static final int app_name=0x7f040000;
+        public static final int assisted=0x7f040013;
+        public static final int assisted_player_prompt=0x7f040019;
         public static final int at_txt=0x7f04000f;
         public static final int away_txt=0x7f04000d;
+        public static final int blocked=0x7f040014;
+        public static final int blocked_player_prompt=0x7f04001a;
+        public static final int drawn=0x7f040016;
+        public static final int drawn_prompt=0x7f04001c;
+        public static final int ejected=0x7f040012;
+        public static final int fast_break=0x7f040010;
+        public static final int forced=0x7f040015;
+        public static final int forced_prompt=0x7f040020;
+        public static final int foul_prompt=0x7f04001f;
+        public static final int goaltending=0x7f040011;
         public static final int home_txt=0x7f04000e;
         public static final int login_btn_text=0x7f040005;
         public static final int login_login_text=0x7f040002;
@@ -77,14 +138,19 @@ public final class R {
         public static final int login_remember_text=0x7f040006;
         public static final int login_username_hint=0x7f040003;
         public static final int login_welcome_text=0x7f040001;
+        public static final int reb_prompt=0x7f04001d;
         public static final int score_game_action_txt=0x7f04000a;
         public static final int score_game_court_desc=0x7f040007;
         public static final int score_game_official_txt=0x7f040008;
         public static final int score_game_start_period=0x7f04000c;
         public static final int score_game_start_score=0x7f04000b;
         public static final int score_game_stats_txt=0x7f040009;
+        public static final int shot_type_prompt=0x7f040018;
+        public static final int sub_prompt=0x7f04001b;
+        public static final int submit_txt=0x7f040017;
+        public static final int turnover_prompt=0x7f04001e;
     }
     public static final class style {
-        public static final int player_style=0x7f050000;
+        public static final int player_style=0x7f060000;
     }
 }

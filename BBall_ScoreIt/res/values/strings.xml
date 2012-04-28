@@ -17,4 +17,51 @@
 	<string name="away_txt">AWAY</string>
 	<string name="home_txt">HOME</string>
 	<string name="at_txt">AT</string>
+	<string name="fast_break">Fastbreak?</string>
+	<string name="goaltending">Goaltending?</string>
+	<string name="ejected">Ejected?</string>
+	<string name="assisted">Assisted?</string>
+	<string name="blocked">Blocked?</string>
+	<string name="forced">Forced?</string>
+	<string name="drawn">Drawn by other player?</string>
+	<string name="submit_txt">Submit</string>
+	<string name="shot_type_prompt">Select Shot Type</string>
+	<string name="assisted_player_prompt">Select Assisting Player</string>
+	<string name="blocked_player_prompt">Select Blocking Player</string>
+	<string name="sub_prompt">Select Incoming Player</string>
+	<string name="drawn_prompt">Drawn by</string>
+	<string name="reb_prompt">Select Rebound Type</string>
+	<string name="turnover_prompt">Select Turnover Type</string>
+	<string name="foul_prompt">Select Foul Type</string>
+	<string name="forced_prompt">Select Forcing Player</string>
+	<string-array name="shot_types">
+	    <item>3pt jump-shot</item>
+	    <item>2pt jump-shot</item>
+	    <item>layup</item>
+	    <item>dunk</item>
+	    <item>tip-in</item>
+	    <item>free-throw</item>
+	</string-array>
+	<string-array name="reb_types">
+	    <item>offensive</item>
+	    <item>defensive</item>
+	</string-array>
+	<string-array name="turnover_types">
+	    <item>traveling</item>
+	    <item>lost-ball</item>
+	    <item>offensive-foul</item>
+	    <item>out-of-bounds</item>
+	    <item>violation</item>
+	    <item>offensive-goaltending</item>
+	    <item>thrown-away</item>
+	</string-array>
+	<string-array name="foul_types">
+	    <item>blocking</item>
+	    <item>charging</item>
+	    <item>shooting</item>
+	    <item>offensive</item>
+	    <item>personal</item>
+	    <item>technical</item>
+	    <item>flagrant</item>
+	</string-array>
 </resources>

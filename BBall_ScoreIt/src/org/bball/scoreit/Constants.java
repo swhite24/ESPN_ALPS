@@ -52,8 +52,11 @@ public interface Constants {
 	// options for various actions
 	public static final CharSequence[] REBOUND_OPTIONS = { "defensive",
 			"offensive" };
+	public static final String[] REB_OPTIONS = { "defensive", "offensive" };
 	public static final CharSequence[] SHOT_OPTIONS = { "3pt jump-shot",
 			"2pt jump-shot", "layup", "dunk", "tip-in", "free-throw" };
+	public static final String[] SHOT_TYPES = { "3pt jump-shot",
+		"2pt jump-shot", "layup", "dunk", "tip-in", "free-throw" };
 	public static final CharSequence[] FOUL_OPTIONS = { "blocking", "charging",
 			"shooting", "offensive", "personal", "technical", "flagrant" };
 	public static final CharSequence[] TURNOVER_OPTIONS = { "traveling",

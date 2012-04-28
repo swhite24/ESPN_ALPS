@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <Spinner 
+        android:id="@+id/turnover_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:entries="@array/turnover_types"
+        android:prompt="@string/turnover_prompt" />
+    <CheckBox
+        android:id="@+id/turnover_forced"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/forced"
+        android:checked="false" />
+    <TextView 
+        android:id="@+id/turnover_forced_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/forced_prompt"
+        android:textColor="#FFFFFF"
+        android:visibility="gone"/>
+    <Spinner
+        android:id="@+id/turnover_forcer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:prompt="@string/forced_prompt" />
+    <Button 
+        android:id="@+id/turnover_submit_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/submit_txt" />"
+
+</LinearLayout>

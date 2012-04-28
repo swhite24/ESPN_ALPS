@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:paddingBottom="5dp" 
             android:gravity="center"/>
-        -->"
+        -->
 
         <TextView
             android:id="@+id/score_game_away_1"
