@@ -62,7 +62,9 @@ public class LoginActivity extends Activity implements OnClickListener {
 		switch (v.getId()) {
 		// call login with desired user-name and password
 		case R.id.login_submit_btn:
+			@SuppressWarnings("unused")
 			String pw = password.getText().toString();
+			@SuppressWarnings("unused")
 			String un = username.getText().toString();
 			showDialog(LOGIN);
 			 api_calls.login(Constants.USERNAME, Constants.PASSWORD);
