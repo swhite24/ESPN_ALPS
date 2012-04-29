@@ -47,7 +47,6 @@ public class ScoreGameActivity extends Activity {
 	private static final int SELECT_AWAY_STARTERS = 2;
 	private static final int SELECT_HOME_STARTERS = 3;
 	private static final int SUBMIT_ACTION = 4;
-	private static final int SUBSTITUTION = 7;
 	private static final int PLAYER_ACTION_DIALOG = 8;
 	private static final int TEAM_ACTION_SELECT = 40;
 	private static final int OFFICIAL_ACTION_SELECT = 50;
@@ -223,18 +222,21 @@ public class ScoreGameActivity extends Activity {
 			progress_dialog.setMessage("Loading game data...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
+		// Progress Dialog for submitting game data
 		case SUBMIT_GAME_DATA:
 			progress_dialog = new ProgressDialog(this,
 					ProgressDialog.STYLE_SPINNER);
 			progress_dialog.setMessage("Submitting starters...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
+		// Progress Dialog for submitting action
 		case SUBMIT_ACTION:
 			progress_dialog = new ProgressDialog(this,
 					ProgressDialog.STYLE_SPINNER);
 			progress_dialog.setMessage("Submitting action...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
+		// Dialog containing all official actions
 		case OFFICIAL_ACTION_SELECT:
 			action_dialog = new Dialog(this);
 			action_dialog.setContentView(R.layout.official_action);
@@ -598,8 +600,6 @@ public class ScoreGameActivity extends Activity {
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					checked[arg2] = !checked[arg2];
-					Log.d(TAG, "currentpos: " + arg2);
-					Log.d(TAG, "checked: " + checked[arg2]);
 
 					ArrayList<View> vs = avail_players.getTouchables();
 					String[] starters = new String[5];
@@ -648,7 +648,6 @@ public class ScoreGameActivity extends Activity {
 					starter5.setText((starters[4] == null ? "Starter 5: "
 							: "Starter 5: " + starters[4]));
 
-					Log.d(TAG, "count:" + count);
 					if (count == 5) {
 						starter_submit.setEnabled(true);
 						starter_submit.setClickable(true);
@@ -661,17 +660,6 @@ public class ScoreGameActivity extends Activity {
 			action_dialog
 					.setTitle("Select Starters for " + away_team.getName());
 			return action_dialog;
-			// alert_dialog = new AlertDialog.Builder(this)
-			// .setTitle("5 more starters for " + away_team.getName())
-			// .setMultiChoiceItems(players, checked,
-			// new Starter_Select(away_team.getName()))
-			// .setPositiveButton("Finished", new OnClickListener() {
-			// public void onClick(DialogInterface dialog, int which) {
-			// populate_away();
-			// }
-			// }).create();
-			// return alert_dialog;
-			// Dialog allowing user to select starters for home team
 		case SELECT_HOME_STARTERS:
 			action_dialog = new Dialog(this);
 			action_dialog.setContentView(R.layout.starter_select);
@@ -758,21 +746,6 @@ public class ScoreGameActivity extends Activity {
 			action_dialog
 					.setTitle("Select Starters for " + away_team.getName());
 			return action_dialog;
-			// alert_dialog = new AlertDialog.Builder(this)
-			// .setTitle("5 more starters for " + home_team.getName())
-			// .setMultiChoiceItems(players, checked,
-			// new Starter_Select(home_team.getName()))
-			// .setPositiveButton("Finished", new OnClickListener() {
-			// public void onClick(DialogInterface dialog, int which) {
-			// switch (which) {
-			// case DialogInterface.BUTTON_POSITIVE:
-			// populate_home();
-			// break;
-			// }
-			// }
-			// }).create();
-			// return alert_dialog;
-			// Dialog for player action
 		case PLAYER_ACTION_DIALOG:
 			action_dialog = new Dialog(this);
 			action_dialog.setContentView(R.layout.action_dialog);
@@ -786,49 +759,6 @@ public class ScoreGameActivity extends Activity {
 			action_dialog.setTitle("Action for "
 					+ current_team.get_player_with_id(current_player)
 							.getLast_name());
-			return action_dialog;
-		case SUBSTITUTION:
-			String name = "!";
-			action_dialog = new Dialog(this);
-			action_dialog.setContentView(R.layout.empty_sub);
-			final ListView sub = (ListView) action_dialog
-					.findViewById(R.id.empty_sub_lv);
-			ActionAdapter sub_ad = new ActionAdapter(this,
-					R.layout.action_item, Arrays.asList(sub_action));
-			sub.setAdapter(sub_ad);
-			right = (ScrollView) action_dialog
-					.findViewById(R.id.empty_sub_right);
-			ViewGroup.inflate(this, R.layout.substitution, right);
-			final Spinner emp_sub_sp = (Spinner) right
-					.findViewById(R.id.sub_players);
-			populate_off_court(current_team);
-			ArrayAdapter<String> emp_ad = new ArrayAdapter<String>(this,
-					android.R.layout.simple_spinner_item, current_players);
-			emp_ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-			emp_sub_sp.setAdapter(emp_ad);
-			Button emp_submit = (Button) right
-					.findViewById(R.id.sub_submit_btn);
-			emp_submit.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View v) {
-					String emp_info = emp_sub_sp.getSelectedItem().toString();
-					String emp_trunc_name = emp_info.substring(0, 5);
-
-					String emp_jnum = emp_info.substring(emp_info
-							.indexOf(" - ") + 3);
-					if (current_team.getName().equals(away_team.getName())) {
-						String temp_id = away_team.get_player_with_jersey(
-								Integer.parseInt(emp_jnum)).getId();
-						away_team.get_player_with_id(temp_id).setOn_court(true);
-					} else {
-						String temp_id = home_team.get_player_with_jersey(
-								Integer.parseInt(emp_jnum)).getId();
-						home_team.get_player_with_id(temp_id).setOn_court(true);
-					}
-					current.setText(emp_trunc_name + "\n" + emp_jnum);
-					dismissDialog(SUBSTITUTION);
-				}
-			});
-			action_dialog.setTitle("Substitution for " + name);
 			return action_dialog;
 		default:
 			return null;
@@ -1047,7 +977,6 @@ public class ScoreGameActivity extends Activity {
 		removeDialog(SELECT_HOME_STARTERS);
 		removeDialog(SUBMIT_ACTION);
 		removeDialog(SUBMIT_GAME_DATA);
-		removeDialog(SUBSTITUTION);
 		removeDialog(TEAM_ACTION_SELECT);
 	}
 
@@ -1097,26 +1026,19 @@ public class ScoreGameActivity extends Activity {
 		public void onClick(View v) {
 			remove_dialogs();
 			TextView temp = (TextView) v;
-			if (!temp.getText().equals("!")) {
-				String text = temp.getText().toString();
-				String jersey = text.substring(text.indexOf("\n") + 1);
-				current_player = away_team.get_player_with_jersey(
-						Integer.parseInt(jersey)).getId();
-				current_team = away_team;
-				current = temp;
-				Log.d(TAG, "jersey/currentplayer: "
-						+ jersey
-						+ "/"
-						+ current_team.get_player_with_id(current_player)
-								.getLast_name());
-				showDialog(PLAYER_ACTION_DIALOG);
-			} else {
-				current_player = null;
-				current_team = away_team;
-				current = temp;
-				populate_off_court(away_team);
-				showDialog(SUBSTITUTION);
-			}
+			String text = temp.getText().toString();
+			String jersey = text.substring(text.indexOf("\n") + 1);
+			current_player = away_team.get_player_with_jersey(
+					Integer.parseInt(jersey)).getId();
+			current_team = away_team;
+			current = temp;
+			Log.d(TAG, "jersey/currentplayer: "
+					+ jersey
+					+ "/"
+					+ current_team.get_player_with_id(current_player)
+							.getLast_name());
+			showDialog(PLAYER_ACTION_DIALOG);
+
 		}
 	}
 
@@ -1134,26 +1056,18 @@ public class ScoreGameActivity extends Activity {
 		public void onClick(View v) {
 			remove_dialogs();
 			TextView temp = (TextView) v;
-			if (!temp.getText().equals("!")) {
-				String text = temp.getText().toString();
-				String jersey = text.substring(text.indexOf("\n") + 1);
-				current_player = home_team.get_player_with_jersey(
-						Integer.parseInt(jersey)).getId();
-				current_team = home_team;
-				current = temp;
-				Log.d(TAG, "jersey/currentplayer: "
-						+ jersey
-						+ "/"
-						+ current_team.get_player_with_id(current_player)
-								.getLast_name());
-				showDialog(PLAYER_ACTION_DIALOG);
-			} else {
-				current_player = null;
-				current_team = home_team;
-				current = temp;
-				populate_off_court(home_team);
-				showDialog(SUBSTITUTION);
-			}
+			String text = temp.getText().toString();
+			String jersey = text.substring(text.indexOf("\n") + 1);
+			current_player = home_team.get_player_with_jersey(
+					Integer.parseInt(jersey)).getId();
+			current_team = home_team;
+			current = temp;
+			Log.d(TAG, "jersey/currentplayer: "
+					+ jersey
+					+ "/"
+					+ current_team.get_player_with_id(current_player)
+							.getLast_name());
+			showDialog(PLAYER_ACTION_DIALOG);
 		}
 	}
 
