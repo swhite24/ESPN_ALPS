@@ -29,6 +29,9 @@
 	<string name="assisted_player_prompt">Select Assisting Player</string>
 	<string name="blocked_player_prompt">Select Blocking Player</string>
 	<string name="sub_prompt">Select Incoming Player</string>
+	<string name="away_jump_prompt">Select Away Jumper</string>
+	<string name="home_jump_prompt">Select Home Jumper</string>
+	<string name="jump_winner_prompt">Select Jump Winner</string>
 	<string name="drawn_prompt">Drawn by</string>
 	<string name="reb_prompt">Select Rebound Type</string>
 	<string name="turnover_prompt">Select Turnover Type</string>

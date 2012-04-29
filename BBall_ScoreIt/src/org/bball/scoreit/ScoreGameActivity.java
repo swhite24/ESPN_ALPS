@@ -29,6 +29,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -51,10 +52,6 @@ public class ScoreGameActivity extends Activity {
 	private static final int SUBMIT_ACTION = 4;
 	private static final int SUBSTITUTION = 7;
 	private static final int PLAYER_ACTION_DIALOG = 8;
-	private static final int PLAYER_REBOUND_TYPE_SELECT = 12;
-	private static final int CHOOSE_AWAY_JUMPER = 34;
-	private static final int CHOOSE_HOME_JUMPER = 35;
-	private static final int CHOOSE_JUMP_WINNER = 36;
 	private static final int TEAM_ACTION_SELECT = 40;
 	private static final int OFFICIAL_ACTION_SELECT = 50;
 	private BallOverlay ball_overlay;
@@ -80,9 +77,9 @@ public class ScoreGameActivity extends Activity {
 	private ArrayList<String> current_players;
 	private String[] away_starters, home_starters, player_actions;
 	private String[] sub_action;
-	private String current_player, sec_player;
+	private String current_player;
 	private int period;
-	private boolean fast_break, goaltending, team;
+	private boolean fast_break, goaltending;
 	private boolean[] checked;
 
 	@Override
@@ -246,17 +243,248 @@ public class ScoreGameActivity extends Activity {
 		case OFFICIAL_ACTION_SELECT:
 			action_dialog = new Dialog(this);
 			action_dialog.setContentView(R.layout.official_action);
-			ListView official_actions = (ListView) action_dialog
+			final ListView official_actions = (ListView) action_dialog
 					.findViewById(R.id.official_actions);
 			ActionAdapter off_ad = new ActionAdapter(this,
 					R.layout.action_item,
 					Arrays.asList(Constants.OFFICIAL_ACTIONS));
+			right = (ScrollView) action_dialog
+					.findViewById(R.id.official_right);
 			official_actions.setOnItemClickListener(new OnItemClickListener() {
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
-					
+					right.removeAllViews();
+					for (View v : official_actions.getTouchables()) {
+						v.setBackgroundColor(Color.BLACK);
+					}
+					((LinearLayout) arg1).setBackgroundColor(Color.RED);
+					switch (arg2) {
+					case 0:
+						ViewGroup.inflate(ScoreGameActivity.this,
+								R.layout.jump_ball, right);
+						final Spinner away_j = (Spinner) right
+								.findViewById(R.id.jump_away_jumper);
+						populate_on_court(away_team);
+						add_team_player(away_team);
+						ArrayAdapter<String> jump_ad = new ArrayAdapter<String>(
+								ScoreGameActivity.this,
+								android.R.layout.simple_spinner_item,
+								current_players);
+						jump_ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+						away_j.setAdapter(jump_ad);
+						final Spinner home_j = (Spinner) right
+								.findViewById(R.id.jump_home_jumper);
+						populate_on_court(home_team);
+						add_team_player(home_team);
+						jump_ad = new ArrayAdapter<String>(
+								ScoreGameActivity.this,
+								android.R.layout.simple_spinner_item,
+								current_players);
+						jump_ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+						home_j.setAdapter(jump_ad);
+
+						final Spinner winner_j = (Spinner) right
+								.findViewById(R.id.jump_winner);
+						away_j.setOnItemSelectedListener(new OnItemSelectedListener() {
+							public void onItemSelected(AdapterView<?> arg0,
+									View arg1, int arg2, long arg3) {
+								ArrayList<String> winner_list = new ArrayList<String>();
+								winner_list.add(away_j.getSelectedItem()
+										.toString());
+								winner_list.add(home_j.getSelectedItem()
+										.toString());
+								ArrayAdapter<String> winner_ad = new ArrayAdapter<String>(
+										ScoreGameActivity.this,
+										android.R.layout.simple_spinner_item,
+										winner_list);
+								winner_ad
+										.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+								winner_j.setAdapter(winner_ad);
+							}
+
+							public void onNothingSelected(AdapterView<?> arg0) {
+							}
+						});
+						home_j.setOnItemSelectedListener(new OnItemSelectedListener() {
+							public void onItemSelected(AdapterView<?> arg0,
+									View arg1, int arg2, long arg3) {
+								ArrayList<String> winner_list = new ArrayList<String>();
+								winner_list.add(away_j.getSelectedItem()
+										.toString());
+								winner_list.add(home_j.getSelectedItem()
+										.toString());
+								ArrayAdapter<String> winner_ad = new ArrayAdapter<String>(
+										ScoreGameActivity.this,
+										android.R.layout.simple_spinner_item,
+										winner_list);
+								winner_ad
+										.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+								winner_j.setAdapter(winner_ad);
+							}
+
+							public void onNothingSelected(AdapterView<?> arg0) {
+							}
+						});
+						Button jump_submit_btn = (Button) right
+								.findViewById(R.id.jump_submit_btn);
+						jump_submit_btn
+								.setOnClickListener(new View.OnClickListener() {
+									public void onClick(View v) {
+										String winner = winner_j
+												.getSelectedItem().toString();
+										String winner_id = null;
+										String away_id = null;
+										String home_id = null;
+										if (winner.equals(away_team.getName())) {
+											winner_id = away_team.get_team_player().getId();
+											away_id = winner_id;
+										} else if (winner.equals(home_team
+												.getName())) {
+											winner_id = home_team.get_team_player().getId();
+											home_id = winner_id;
+										} else {
+											String winner_jn = winner.substring(winner
+													.indexOf(" - ") + 3);
+											if (winner_j
+													.getSelectedItemPosition() == 0) {
+												winner_id = away_team
+														.get_player_with_jersey(
+																Integer.parseInt(winner_jn))
+														.getId();
+												away_id = winner_id;
+											} else {
+												winner_id = home_team
+														.get_player_with_jersey(
+																Integer.parseInt(winner_jn))
+														.getId();
+												home_id = winner_id;
+											}
+										}
+										if (away_id == null) {
+											String away_jumper = winner_j
+													.getItemAtPosition(0)
+													.toString();
+											if (away_jumper.equals(away_team
+													.getName())) {
+												away_id = away_team.get_team_player().getId();
+											} else {
+												String away_jn = away_jumper.substring(away_jumper
+														.indexOf(" - ") + 3);
+												away_id = away_team
+														.get_player_with_jersey(
+																Integer.parseInt(away_jn))
+														.getId();
+											}
+										}
+										if (home_id == null) {
+											String home_jumper = winner_j
+													.getItemAtPosition(0)
+													.toString();
+											if (home_jumper.equals(away_team
+													.getName())) {
+												home_id = home_team.get_team_player().getId();
+											} else {
+												String home_jn = home_jumper.substring(home_jumper
+														.indexOf(" - ") + 3);
+												home_id = home_team
+														.get_player_with_jersey(
+																Integer.parseInt(home_jn))
+														.getId();
+											}
+										}
+										showDialog(SUBMIT_ACTION);
+										api_calls.send_jumpball(home_id,
+												away_id, winner_id,
+												ball_overlay
+														.get_court_location(),
+												api_calls.make_context(
+														home_team.getScore(),
+														away_team.getScore()));
+										dismissDialog(OFFICIAL_ACTION_SELECT);
+									}
+								});
+						break;
+					case 1:
+						ViewGroup.inflate(ScoreGameActivity.this,
+								R.layout.simple_submit, right);
+						Button ps_btn = (Button) right
+								.findViewById(R.id.simple_submit_btn);
+						ps_btn.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								showDialog(SUBMIT_ACTION);
+								if (period < 3) {
+									period_indicator.setText("Start " + period);
+									showDialog(SUBMIT_ACTION);
+									api_calls.send_period_start(period,
+											api_calls.make_context(
+													home_team.getScore(),
+													away_team.getScore()));
+								}
+								dismissDialog(OFFICIAL_ACTION_SELECT);
+							}
+						});
+						break;
+					case 2:
+						ViewGroup.inflate(ScoreGameActivity.this,
+								R.layout.simple_submit, right);
+						Button pe_btn = (Button) right
+								.findViewById(R.id.simple_submit_btn);
+						pe_btn.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								if (period < 3) {
+									period_indicator.setText("End " + period);
+									showDialog(SUBMIT_ACTION);
+									api_calls.send_period_end(period, api_calls
+											.make_context(home_team.getScore(),
+													away_team.getScore()));
+									period++;
+								}
+								dismissDialog(OFFICIAL_ACTION_SELECT);
+							}
+						});
+						break;
+					case 3:
+						ViewGroup.inflate(ScoreGameActivity.this,
+								R.layout.simple_submit, right);
+						Button to_btn = (Button) right
+								.findViewById(R.id.simple_submit_btn);
+						to_btn.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_timeout(
+										null,
+										"official",
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+								dismissDialog(OFFICIAL_ACTION_SELECT);
+							}
+						});
+						break;
+					case 4:
+						ViewGroup.inflate(ScoreGameActivity.this,
+								R.layout.simple_submit, right);
+						Button med_btn = (Button) right
+								.findViewById(R.id.simple_submit_btn);
+						med_btn.setOnClickListener(new View.OnClickListener() {
+							public void onClick(View v) {
+								showDialog(SUBMIT_ACTION);
+								api_calls.send_timeout(
+										null,
+										"media",
+										api_calls.make_context(
+												home_team.getScore(),
+												away_team.getScore()));
+								dismissDialog(OFFICIAL_ACTION_SELECT);
+							}
+						});
+						break;
+					}
 				}
 			});
+			official_actions.setAdapter(off_ad);
+			action_dialog.setTitle("Official Action");
+			return action_dialog;
 		case TEAM_ACTION_SELECT:
 			action_dialog = new Dialog(this);
 			action_dialog.setContentView(R.layout.team_action);
@@ -428,110 +656,6 @@ public class ScoreGameActivity extends Activity {
 			});
 			action_dialog.setTitle("Substitution for " + name);
 			return action_dialog;
-		case PLAYER_REBOUND_TYPE_SELECT:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Select Rebound Type")
-					.setItems(Constants.REBOUND_OPTIONS, new OnClickListener() {
-
-						public void onClick(DialogInterface dialog, int which) {
-							String type = null;
-							if (which == 0) {
-								current_team.get_player_with_id(current_player)
-										.def_rb();
-								type = team ? "team-offensive" : "offensive";
-							} else {
-								current_team.get_player_with_id(current_player)
-										.off_rb();
-								type = team ? "team-defensive" : "defensive";
-							}
-							showDialog(SUBMIT_ACTION);
-							api_calls.send_rebound(current_player, type,
-									ball_overlay.get_court_location(),
-									api_calls.make_context(
-											home_team.getScore(),
-											away_team.getScore()));
-						}
-					}).create();
-			return alert_dialog;
-		case CHOOSE_AWAY_JUMPER:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Choose Away Jumper")
-					.setItems(players, new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == 0)
-								current_player = current_team.get_team_player()
-										.getId();
-							else {
-								String player_info = players[which].toString();
-								String jersey_num = player_info
-										.substring(player_info.indexOf(" - ") + 3);
-								current_player = current_team
-										.get_player_with_jersey(
-												Integer.parseInt(jersey_num))
-										.getId();
-							}
-							current_team = home_team;
-							populate_on_court(current_team);
-							add_team_player();
-							showDialog(CHOOSE_HOME_JUMPER);
-						}
-					}).create();
-			return alert_dialog;
-		case CHOOSE_HOME_JUMPER:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Choose Home Jumper")
-					.setItems(players, new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							if (which == 0)
-								sec_player = current_team.get_team_player()
-										.getId();
-							else {
-								String player_info = players[which].toString();
-								String jersey_num = player_info
-										.substring(player_info.indexOf(" - ") + 3);
-								sec_player = current_team
-										.get_player_with_jersey(
-												Integer.parseInt(jersey_num))
-										.getId();
-							}
-							players = new CharSequence[2];
-							if (away_team.get_player_with_id(current_player)
-									.isIs_team_player()) {
-								players[0] = away_team.getName();
-								players[1] = home_team.getName();
-							} else {
-								players[0] = away_team.get_player_with_id(
-										current_player).getLast_name()
-										+ " - "
-										+ away_team.get_player_with_id(
-												current_player)
-												.getJersey_number();
-								players[1] = home_team.get_player_with_id(
-										sec_player).getLast_name()
-										+ " - "
-										+ home_team.get_player_with_id(
-												sec_player).getJersey_number();
-							}
-							showDialog(CHOOSE_JUMP_WINNER);
-						}
-					}).create();
-			return alert_dialog;
-		case CHOOSE_JUMP_WINNER:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("Choose Winner")
-					.setItems(players, new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							String winner = which == 0 ? current_player
-									: sec_player;
-							showDialog(SUBMIT_ACTION);
-							api_calls.send_jumpball(current_player, sec_player,
-									winner, ball_overlay.get_court_location(),
-									api_calls.make_context(
-											home_team.getScore(),
-											away_team.getScore()));
-						}
-					}).create();
-			return alert_dialog;
 		default:
 			return null;
 		}
@@ -756,11 +880,14 @@ public class ScoreGameActivity extends Activity {
 		}
 	}
 
-	private void add_team_player() {
+	private void add_team_player(Team team) {
 		CharSequence[] temp = new CharSequence[players.length + 1];
-		temp[0] = "Team";
+		current_players = new ArrayList<String>();
+		temp[0] = team.getName();
+		current_players.add(team.getName());
 		for (int i = 0; i < players.length; i++) {
 			temp[i + 1] = players[i];
+			current_players.add(players[i].toString());
 		}
 
 		players = temp;
@@ -770,13 +897,9 @@ public class ScoreGameActivity extends Activity {
 	 * Wipes references to all existing dialogs
 	 */
 	private void remove_dialogs() {
-		removeDialog(CHOOSE_AWAY_JUMPER);
-		removeDialog(CHOOSE_HOME_JUMPER);
-		removeDialog(CHOOSE_JUMP_WINNER);
 		removeDialog(LOAD_GAMES_PROGRESS);
 		removeDialog(OFFICIAL_ACTION_SELECT);
 		removeDialog(PLAYER_ACTION_DIALOG);
-		removeDialog(PLAYER_REBOUND_TYPE_SELECT);
 		removeDialog(SELECT_AWAY_STARTERS);
 		removeDialog(SELECT_HOME_STARTERS);
 		removeDialog(SUBMIT_ACTION);
@@ -830,7 +953,6 @@ public class ScoreGameActivity extends Activity {
 			android.view.View.OnClickListener {
 		public void onClick(View v) {
 			remove_dialogs();
-			team = false;
 			TextView temp = (TextView) v;
 			if (!temp.getText().equals("!")) {
 				String text = temp.getText().toString();
@@ -868,7 +990,6 @@ public class ScoreGameActivity extends Activity {
 
 		public void onClick(View v) {
 			remove_dialogs();
-			team = false;
 			TextView temp = (TextView) v;
 			if (!temp.getText().equals("!")) {
 				String text = temp.getText().toString();
@@ -904,7 +1025,6 @@ public class ScoreGameActivity extends Activity {
 
 		public void onClick(View v) {
 			remove_dialogs();
-			team = true;
 			switch (v.getId()) {
 			case R.id.score_game_away_action:
 				current_team = away_team;
