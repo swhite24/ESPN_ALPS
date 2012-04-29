@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="#000000" >
+    
+    <ListView 
+        android:id="@+id/starter_select_players"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:choiceMode="multipleChoice"
+        android:padding="10dp" />
+    
+    <ScrollView 
+        android:id="@+id/starter_select_right"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="10dp" />
+
+</LinearLayout>

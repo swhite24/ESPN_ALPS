@@ -7,13 +7,10 @@ import java.util.List;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -60,7 +57,6 @@ public class ScoreGameActivity extends Activity {
 	private HomePlayerListener home_player_click;
 	private TeamActionListener team_action_click;
 	private ProgressDialog progress_dialog;
-	private AlertDialog alert_dialog;
 	private Dialog action_dialog;
 	private API_Calls api_calls;
 	private Game game;
@@ -73,7 +69,6 @@ public class ScoreGameActivity extends Activity {
 	private ScrollView right;
 	private Button away_click, home_click;
 	private ImageView court;
-	private CharSequence[] players;
 	private ArrayList<String> current_players;
 	private String[] away_starters, home_starters, player_actions;
 	private String[] sub_action;
@@ -336,11 +331,13 @@ public class ScoreGameActivity extends Activity {
 										String away_id = null;
 										String home_id = null;
 										if (winner.equals(away_team.getName())) {
-											winner_id = away_team.get_team_player().getId();
+											winner_id = away_team
+													.get_team_player().getId();
 											away_id = winner_id;
 										} else if (winner.equals(home_team
 												.getName())) {
-											winner_id = home_team.get_team_player().getId();
+											winner_id = home_team
+													.get_team_player().getId();
 											home_id = winner_id;
 										} else {
 											String winner_jn = winner.substring(winner
@@ -366,7 +363,9 @@ public class ScoreGameActivity extends Activity {
 													.toString();
 											if (away_jumper.equals(away_team
 													.getName())) {
-												away_id = away_team.get_team_player().getId();
+												away_id = away_team
+														.get_team_player()
+														.getId();
 											} else {
 												String away_jn = away_jumper.substring(away_jumper
 														.indexOf(" - ") + 3);
@@ -382,7 +381,9 @@ public class ScoreGameActivity extends Activity {
 													.toString();
 											if (home_jumper.equals(away_team
 													.getName())) {
-												home_id = home_team.get_team_player().getId();
+												home_id = home_team
+														.get_team_player()
+														.getId();
 											} else {
 												String home_jn = home_jumper.substring(home_jumper
 														.indexOf(" - ") + 3);
@@ -572,32 +573,205 @@ public class ScoreGameActivity extends Activity {
 			action_dialog.setTitle("Action for " + current_team.getName());
 			return action_dialog;
 		case SELECT_AWAY_STARTERS:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("5 more starters for " + away_team.getName())
-					.setMultiChoiceItems(players, checked,
-							new Starter_Select(away_team.getName()))
-					.setPositiveButton("Finished", new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							populate_away();
+			action_dialog = new Dialog(this);
+			action_dialog.setContentView(R.layout.starter_select);
+			right = (ScrollView) action_dialog
+					.findViewById(R.id.starter_select_right);
+			ViewGroup.inflate(this, R.layout.preview_starters, right);
+			final Button starter_submit = (Button) right
+					.findViewById(R.id.preview_starters_submit_btn);
+			starter_submit.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					populate_away();
+					dismissDialog(SELECT_AWAY_STARTERS);
+				}
+			});
+			starter_submit.setClickable(false);
+			starter_submit.setEnabled(false);
+			final ListView avail_players = (ListView) action_dialog
+					.findViewById(R.id.starter_select_players);
+			populate_players(away_team);
+			ActionAdapter away_ad = new ActionAdapter(this,
+					R.layout.action_item, current_players);
+			avail_players.setAdapter(away_ad);
+			avail_players.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					checked[arg2] = !checked[arg2];
+					Log.d(TAG, "currentpos: " + arg2);
+					Log.d(TAG, "checked: " + checked[arg2]);
+
+					ArrayList<View> vs = avail_players.getTouchables();
+					String[] starters = new String[5];
+					int count = 0;
+					for (int i = 0; i < checked.length; i++) {
+						String item = avail_players.getItemAtPosition(i)
+								.toString();
+						if (checked[i]) {
+							if (count < 5) {
+								starters[count] = item.substring(0,
+										item.indexOf(" - "));
+							}
+							count++;
 						}
-					}).create();
-			return alert_dialog;
+					}
+					for (int i = 0; i < vs.size(); i++) {
+						String text = avail_players.getItemAtPosition(i)
+								.toString();
+						String name_text = text.substring(0,
+								text.indexOf(" - "));
+						if (Arrays.asList(starters).contains(name_text)) {
+							vs.get(i).setBackgroundColor(Color.RED);
+						} else {
+							vs.get(i).setBackgroundColor(Color.BLACK);
+						}
+					}
+					TextView starter1 = (TextView) right
+							.findViewById(R.id.preview_starters_1);
+					TextView starter2 = (TextView) right
+							.findViewById(R.id.preview_starters_2);
+					TextView starter3 = (TextView) right
+							.findViewById(R.id.preview_starters_3);
+					TextView starter4 = (TextView) right
+							.findViewById(R.id.preview_starters_4);
+					TextView starter5 = (TextView) right
+							.findViewById(R.id.preview_starters_5);
+
+					starter1.setText((starters[0] == null ? "Starter 1: "
+							: "Starter 1: " + starters[0]));
+					starter2.setText((starters[1] == null ? "Starter 2: "
+							: "Starter 2: " + starters[1]));
+					starter3.setText((starters[2] == null ? "Starter 3: "
+							: "Starter 3: " + starters[2]));
+					starter4.setText((starters[3] == null ? "Starter 4: "
+							: "Starter 4: " + starters[3]));
+					starter5.setText((starters[4] == null ? "Starter 5: "
+							: "Starter 5: " + starters[4]));
+
+					Log.d(TAG, "count:" + count);
+					if (count == 5) {
+						starter_submit.setEnabled(true);
+						starter_submit.setClickable(true);
+					} else {
+						starter_submit.setClickable(false);
+						starter_submit.setEnabled(false);
+					}
+				}
+			});
+			action_dialog
+					.setTitle("Select Starters for " + away_team.getName());
+			return action_dialog;
+			// alert_dialog = new AlertDialog.Builder(this)
+			// .setTitle("5 more starters for " + away_team.getName())
+			// .setMultiChoiceItems(players, checked,
+			// new Starter_Select(away_team.getName()))
+			// .setPositiveButton("Finished", new OnClickListener() {
+			// public void onClick(DialogInterface dialog, int which) {
+			// populate_away();
+			// }
+			// }).create();
+			// return alert_dialog;
 			// Dialog allowing user to select starters for home team
 		case SELECT_HOME_STARTERS:
-			alert_dialog = new AlertDialog.Builder(this)
-					.setTitle("5 more starters for " + home_team.getName())
-					.setMultiChoiceItems(players, checked,
-							new Starter_Select(home_team.getName()))
-					.setPositiveButton("Finished", new OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							switch (which) {
-							case DialogInterface.BUTTON_POSITIVE:
-								populate_home();
-								break;
+			action_dialog = new Dialog(this);
+			action_dialog.setContentView(R.layout.starter_select);
+			right = (ScrollView) action_dialog
+					.findViewById(R.id.starter_select_right);
+			ViewGroup.inflate(this, R.layout.preview_starters, right);
+			final Button h_starter_submit = (Button) right
+					.findViewById(R.id.preview_starters_submit_btn);
+			h_starter_submit.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					populate_home();
+					dismissDialog(SELECT_HOME_STARTERS);
+				}
+			});
+			h_starter_submit.setClickable(false);
+			h_starter_submit.setEnabled(false);
+			final ListView h_avail_players = (ListView) action_dialog
+					.findViewById(R.id.starter_select_players);
+			populate_players(home_team);
+			ActionAdapter home_ad = new ActionAdapter(this,
+					R.layout.action_item, current_players);
+			h_avail_players.setAdapter(home_ad);
+			h_avail_players.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					checked[arg2] = !checked[arg2];
+
+					ArrayList<View> vs = h_avail_players.getTouchables();
+					String[] starters = new String[5];
+					int count = 0;
+					for (int i = 0; i < checked.length; i++) {
+						String item = h_avail_players.getItemAtPosition(i)
+								.toString();
+						if (checked[i]) {
+							if (count < 5) {
+								starters[count] = item.substring(0,
+										item.indexOf(" - "));
 							}
+							count++;
 						}
-					}).create();
-			return alert_dialog;
+					}
+					for (int i = 0; i < vs.size(); i++) {
+						String text = h_avail_players.getItemAtPosition(i)
+								.toString();
+						String name_text = text.substring(0,
+								text.indexOf(" - "));
+						if (Arrays.asList(starters).contains(name_text)) {
+							vs.get(i).setBackgroundColor(Color.RED);
+						} else {
+							vs.get(i).setBackgroundColor(Color.BLACK);
+						}
+					}
+					TextView starter1 = (TextView) right
+							.findViewById(R.id.preview_starters_1);
+					TextView starter2 = (TextView) right
+							.findViewById(R.id.preview_starters_2);
+					TextView starter3 = (TextView) right
+							.findViewById(R.id.preview_starters_3);
+					TextView starter4 = (TextView) right
+							.findViewById(R.id.preview_starters_4);
+					TextView starter5 = (TextView) right
+							.findViewById(R.id.preview_starters_5);
+
+					starter1.setText((starters[0] == null ? "Starter 1: "
+							: "Starter 1: " + starters[0]));
+					starter2.setText((starters[1] == null ? "Starter 2: "
+							: "Starter 2: " + starters[1]));
+					starter3.setText((starters[2] == null ? "Starter 3: "
+							: "Starter 3: " + starters[2]));
+					starter4.setText((starters[3] == null ? "Starter 4: "
+							: "Starter 4: " + starters[3]));
+					starter5.setText((starters[4] == null ? "Starter 5: "
+							: "Starter 5: " + starters[4]));
+
+					if (count == 5) {
+						h_starter_submit.setEnabled(true);
+						h_starter_submit.setClickable(true);
+					} else {
+						h_starter_submit.setClickable(false);
+						h_starter_submit.setEnabled(false);
+					}
+				}
+			});
+			action_dialog
+					.setTitle("Select Starters for " + away_team.getName());
+			return action_dialog;
+			// alert_dialog = new AlertDialog.Builder(this)
+			// .setTitle("5 more starters for " + home_team.getName())
+			// .setMultiChoiceItems(players, checked,
+			// new Starter_Select(home_team.getName()))
+			// .setPositiveButton("Finished", new OnClickListener() {
+			// public void onClick(DialogInterface dialog, int which) {
+			// switch (which) {
+			// case DialogInterface.BUTTON_POSITIVE:
+			// populate_home();
+			// break;
+			// }
+			// }
+			// }).create();
+			// return alert_dialog;
 			// Dialog for player action
 		case PLAYER_ACTION_DIALOG:
 			action_dialog = new Dialog(this);
@@ -662,35 +836,6 @@ public class ScoreGameActivity extends Activity {
 	}
 
 	/**
-	 * Dialog ClickListener for updating title when selecting team starters.
-	 * 
-	 * @author Steve
-	 * 
-	 */
-	private class Starter_Select implements
-			DialogInterface.OnMultiChoiceClickListener {
-		private String team_name;
-
-		public Starter_Select(String team_name) {
-			this.team_name = team_name;
-		}
-
-		public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-			alert_dialog.setTitle(get_selected() + " more starters for "
-					+ team_name);
-		}
-
-		private int get_selected() {
-			int count = 0;
-			for (int i = 0; i < checked.length; i++) {
-				if (checked[i])
-					count++;
-			}
-			return 5 - count;
-		}
-	}
-
-	/**
 	 * Extracts team info from gameData String and constructs home_team and
 	 * away_team. Each team populates its respective list of players. Prompts
 	 * user to select starters for away team, followed by home team.
@@ -732,11 +877,11 @@ public class ScoreGameActivity extends Activity {
 	private void populate_away() {
 		int count = 0;
 		String[] starters = new String[5];
-		for (int i = 0; i < players.length; i++) {
+		for (int i = 0; i < current_players.size(); i++) {
 			if (count == 5)
 				break;
 			if (checked[i]) {
-				String player_info = players[i].toString();
+				String player_info = current_players.get(i);
 				String trunc_name = player_info.substring(0, 5);
 				String jersey_num = player_info.substring(player_info
 						.indexOf(" - ") + 3);
@@ -745,9 +890,9 @@ public class ScoreGameActivity extends Activity {
 				starters[count] = trunc_name + "\n" + jersey_num;
 				away_starters[count] = away_team.get_player(i + 1).getId();
 				count++;
+				checked[i] = false;
 			}
 		}
-		players = null;
 		checked = null;
 
 		away1.setText(starters[0] == null ? "!" : starters[0]);
@@ -766,11 +911,11 @@ public class ScoreGameActivity extends Activity {
 	private void populate_home() {
 		int count = 0;
 		String[] starters = new String[5];
-		for (int i = 0; i < players.length; i++) {
+		for (int i = 0; i < current_players.size(); i++) {
 			if (count == 5)
 				break;
 			if (checked[i]) {
-				String player_info = players[i].toString();
+				String player_info = current_players.get(i);
 				String trunc_name = player_info.substring(0, 5);
 				String jersey_num = player_info.substring(player_info
 						.indexOf(" - ") + 3);
@@ -779,9 +924,9 @@ public class ScoreGameActivity extends Activity {
 				starters[count] = trunc_name + "\n" + jersey_num;
 				home_starters[count] = home_team.get_player(i + 1).getId();
 				count++;
+				checked[i] = false;
 			}
 		}
-		players = null;
 		checked = null;
 
 		home1.setText(starters[0] == null ? "!" : starters[0]);
@@ -800,6 +945,7 @@ public class ScoreGameActivity extends Activity {
 	 */
 	private void select_away_starters() {
 		populate_players(away_team);
+		current_team = away_team;
 		showDialog(SELECT_AWAY_STARTERS);
 	}
 
@@ -809,6 +955,7 @@ public class ScoreGameActivity extends Activity {
 	 */
 	private void select_home_starters() {
 		populate_players(home_team);
+		current_team = home_team;
 		showDialog(SELECT_HOME_STARTERS);
 
 	}
@@ -821,11 +968,13 @@ public class ScoreGameActivity extends Activity {
 	 */
 	private void populate_players(Team team) {
 		ArrayList<Player> players_list = (ArrayList<Player>) team.getPlayers();
-		players = new CharSequence[players_list.size() - 1];
-		checked = new boolean[players.length];
+		checked = new boolean[players_list.size() - 1];
+		current_players = new ArrayList<String>();
 		for (int i = 0; i < players_list.size() - 1; i++) {
-			players[i] = players_list.get(i + 1).getLast_name() + " - "
+			String s = players_list.get(i + 1).getLast_name() + " - "
 					+ players_list.get(i + 1).getJersey_number();
+			current_players.add(s);
+			checked[i] = false;
 		}
 	}
 
@@ -845,12 +994,11 @@ public class ScoreGameActivity extends Activity {
 				on_court.add(players_list.get(i));
 		}
 		current_players = new ArrayList<String>();
-		players = new CharSequence[on_court.size()];
-		checked = new boolean[players.length];
+		checked = null;
 		for (int i = 0; i < on_court.size(); i++) {
-			players[i] = on_court.get(i).getLast_name() + " - "
+			String s = on_court.get(i).getLast_name() + " - "
 					+ on_court.get(i).getJersey_number();
-			current_players.add(players[i].toString());
+			current_players.add(s);
 		}
 	}
 
@@ -871,26 +1019,21 @@ public class ScoreGameActivity extends Activity {
 			}
 		}
 		current_players = new ArrayList<String>();
-		players = new CharSequence[off_court.size()];
-		checked = new boolean[players.length];
+		checked = null;
 		for (int i = 0; i < off_court.size(); i++) {
-			players[i] = off_court.get(i).getLast_name() + " - "
+			String s = off_court.get(i).getLast_name() + " - "
 					+ off_court.get(i).getJersey_number();
-			current_players.add(players[i].toString());
+			current_players.add(s);
 		}
 	}
 
 	private void add_team_player(Team team) {
-		CharSequence[] temp = new CharSequence[players.length + 1];
-		current_players = new ArrayList<String>();
-		temp[0] = team.getName();
-		current_players.add(team.getName());
-		for (int i = 0; i < players.length; i++) {
-			temp[i + 1] = players[i];
-			current_players.add(players[i].toString());
+		ArrayList<String> temp_list = new ArrayList<String>();
+		temp_list.add(team.getName());
+		for (int i = 0; i < current_players.size(); i++) {
+			temp_list.add(current_players.get(i));
 		}
-
-		players = temp;
+		current_players = temp_list;
 	}
 
 	/**
@@ -1074,6 +1217,14 @@ public class ScoreGameActivity extends Activity {
 			text.setTextColor(Color.WHITE);
 			text.setText(getItem(position));
 
+			if (checked != null) {
+				if (checked[position]) {
+					action_view.setBackgroundColor(Color.RED);
+				} else {
+					action_view.setBackgroundColor(Color.BLACK);
+				}
+			}
+
 			return action_view;
 		}
 	}
@@ -1198,8 +1349,8 @@ public class ScoreGameActivity extends Activity {
 						}
 						String assist_id = null;
 						if (assisted.isChecked()) {
-							String player_info = players[assisting
-									.getSelectedItemPosition()].toString();
+							String player_info = current_players.get(assisting
+									.getSelectedItemPosition());
 							String jersey_num = player_info
 									.substring(player_info.indexOf(" - ") + 3);
 							assist_id = current_team.get_player_with_jersey(
@@ -1271,7 +1422,7 @@ public class ScoreGameActivity extends Activity {
 							} else {
 								blocker_id = away_team.get_player_with_jersey(
 										Integer.parseInt(b_jnum)).getId();
-								home_team.get_player_with_id(blocker_id)
+								away_team.get_player_with_id(blocker_id)
 										.block();
 							}
 						}
