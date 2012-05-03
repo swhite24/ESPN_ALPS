@@ -7,6 +7,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -50,6 +51,7 @@ public class ScoreGameActivity extends Activity {
 	private static final int PLAYER_ACTION_DIALOG = 8;
 	private static final int TEAM_ACTION_SELECT = 40;
 	private static final int OFFICIAL_ACTION_SELECT = 50;
+	private static final int LOCATION_WARNING = 60;
 	private BallOverlay ball_overlay;
 	private GenericReceiver generic_receiver;
 	private AwayPlayerListener away_player_click;
@@ -72,7 +74,7 @@ public class ScoreGameActivity extends Activity {
 	private String[] away_starters, home_starters, player_actions;
 	private String[] sub_action;
 	private String current_player;
-	private int period;
+	private int period, idle_location;
 	private boolean fast_break, goaltending;
 	private boolean[] checked;
 
@@ -98,6 +100,7 @@ public class ScoreGameActivity extends Activity {
 			public boolean onTouch(View v, MotionEvent event) {
 				ball_overlay.setX(event.getX());
 				ball_overlay.setY(event.getY());
+				idle_location = 0;
 				ball_overlay.invalidate();
 				return true;
 			}
@@ -149,6 +152,8 @@ public class ScoreGameActivity extends Activity {
 		period_indicator = (TextView) findViewById(R.id.score_game_period_indicator);
 		period_indicator.setText("Pregame");
 		period = 1;
+
+		idle_location = 0;
 
 		api_calls = new API_Calls(this);
 
@@ -222,21 +227,21 @@ public class ScoreGameActivity extends Activity {
 			progress_dialog.setMessage("Loading game data...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
-		// Progress Dialog for submitting game data
+			// Progress Dialog for submitting game data
 		case SUBMIT_GAME_DATA:
 			progress_dialog = new ProgressDialog(this,
 					ProgressDialog.STYLE_SPINNER);
 			progress_dialog.setMessage("Submitting starters...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
-		// Progress Dialog for submitting action
+			// Progress Dialog for submitting action
 		case SUBMIT_ACTION:
 			progress_dialog = new ProgressDialog(this,
 					ProgressDialog.STYLE_SPINNER);
 			progress_dialog.setMessage("Submitting action...");
 			progress_dialog.setCancelable(false);
 			return progress_dialog;
-		// Dialog containing all official actions
+			// Dialog containing all official actions
 		case OFFICIAL_ACTION_SELECT:
 			action_dialog = new Dialog(this);
 			action_dialog.setContentView(R.layout.official_action);
@@ -754,12 +759,21 @@ public class ScoreGameActivity extends Activity {
 					.findViewById(R.id.shot_d_lv_left);
 			ActionAdapter ad = new ActionAdapter(this, R.layout.action_item,
 					Arrays.asList(player_actions));
+			checked = new boolean[player_actions.length];
+			Arrays.fill(checked, false);
 			actions.setOnItemClickListener(new PlayerActionClick(actions));
 			actions.setAdapter(ad);
 			action_dialog.setTitle("Action for "
 					+ current_team.get_player_with_id(current_player)
 							.getLast_name());
 			return action_dialog;
+		case LOCATION_WARNING:
+			AlertDialog caution = new AlertDialog.Builder(this)
+					.setTitle("Idle Location Warning")
+					.setMessage(
+							"CAUTION!\nLocation has not changed for three consecutive events")
+					.setPositiveButton("Okay", null).create();
+			return caution;
 		default:
 			return null;
 		}
@@ -781,18 +795,18 @@ public class ScoreGameActivity extends Activity {
 			JSONObject game_obj = new JSONObject(response_obj.get("response")
 					.toString());
 
+			home_team = new Team(game_obj.get("homeTeam").toString());
+			away_team = new Team(game_obj.get("awayTeam").toString());
+
+			away_tv.setText("" + away_team.getName());
+			home_tv.setText("" + home_team.getName());
+
 			if (game_obj.has("gameSetupData")) {
 				Log.d(TAG, "Previous game data present.");
 			} else {
 				Log.d(TAG, "No game events");
 			}
 
-			home_team = new Team(game_obj.get("homeTeam").toString());
-			away_team = new Team(game_obj.get("awayTeam").toString());
-
-			away_tv.setText("" + away_team.getName());
-
-			home_tv.setText("" + home_team.getName());
 			select_away_starters();
 		} catch (Exception e) {
 			Log.e(TAG, "Failed to populate game fields");
@@ -825,13 +839,17 @@ public class ScoreGameActivity extends Activity {
 		}
 		checked = null;
 
+		fill_away(starters);
+
+		select_home_starters();
+	}
+
+	private void fill_away(String[] starters) {
 		away1.setText(starters[0] == null ? "!" : starters[0]);
 		away2.setText(starters[1] == null ? "!" : starters[1]);
 		away3.setText(starters[2] == null ? "!" : starters[2]);
 		away4.setText(starters[3] == null ? "!" : starters[3]);
 		away5.setText(starters[4] == null ? "!" : starters[4]);
-
-		select_home_starters();
 	}
 
 	/**
@@ -859,14 +877,19 @@ public class ScoreGameActivity extends Activity {
 		}
 		checked = null;
 
+		fill_home(starters);
+
+		showDialog(SUBMIT_GAME_DATA);
+		api_calls.setGameData(away_starters, home_starters);
+	}
+
+	private void fill_home(String[] starters) {
 		home1.setText(starters[0] == null ? "!" : starters[0]);
 		home2.setText(starters[1] == null ? "!" : starters[1]);
 		home3.setText(starters[2] == null ? "!" : starters[2]);
 		home4.setText(starters[3] == null ? "!" : starters[3]);
 		home5.setText(starters[4] == null ? "!" : starters[4]);
 
-		showDialog(SUBMIT_GAME_DATA);
-		api_calls.setGameData(away_starters, home_starters);
 	}
 
 	/**
@@ -957,6 +980,12 @@ public class ScoreGameActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Adds team player to list of players (current_player)
+	 * 
+	 * @param team
+	 *            - Team to add team player for
+	 */
 	private void add_team_player(Team team) {
 		ArrayList<String> temp_list = new ArrayList<String>();
 		temp_list.add(team.getName());
@@ -996,17 +1025,22 @@ public class ScoreGameActivity extends Activity {
 			switch (method_id) {
 			case 0:
 				dismissDialog(LOAD_GAMES_PROGRESS);
-				Log.d(TAG,
-						"Received result length: "
-								+ intent.getStringExtra("result").length());
-				populateFields(intent.getStringExtra("result"));
-
+				if (intent.hasExtra("result")) {
+					populateFields(intent.getStringExtra("result"));
+				} else {
+					Log.e(TAG, "Error getting game data.");
+					finish();
+				}
 				break;
 			case 1:
 				dismissDialog(SUBMIT_GAME_DATA);
 				break;
 			case 2:
 				dismissDialog(SUBMIT_ACTION);
+				idle_location++;
+				if (idle_location >= 3) {
+					showDialog(LOCATION_WARNING);
+				}
 				break;
 			}
 		}
@@ -1233,6 +1267,16 @@ public class ScoreGameActivity extends Activity {
 				submit.setOnClickListener(new View.OnClickListener() {
 
 					public void onClick(View v) {
+						String assist_id = null;
+						if (assisted.isChecked()) {
+							String player_info = current_players.get(assisting
+									.getSelectedItemPosition());
+							String jersey_num = player_info
+									.substring(player_info.indexOf(" - ") + 3);
+							assist_id = current_team.get_player_with_jersey(
+									Integer.parseInt(jersey_num)).getId();
+							current_team.get_player_with_id(assist_id).assist();
+						}
 						int points = 0;
 						String sel_shot = null;
 						fast_break = fastbreak.isChecked();
@@ -1248,6 +1292,7 @@ public class ScoreGameActivity extends Activity {
 							sel_shot = "free-throw";
 							fast_break = false;
 							goaltending = false;
+							assist_id = null;
 						} else {
 							sel_shot = Constants.SHOT_TYPES[shot_type
 									.getSelectedItemPosition()];
@@ -1260,16 +1305,6 @@ public class ScoreGameActivity extends Activity {
 							away_score.setText("" + away_team.getScore());
 						} else {
 							home_score.setText("" + home_team.getScore());
-						}
-						String assist_id = null;
-						if (assisted.isChecked()) {
-							String player_info = current_players.get(assisting
-									.getSelectedItemPosition());
-							String jersey_num = player_info
-									.substring(player_info.indexOf(" - ") + 3);
-							assist_id = current_team.get_player_with_jersey(
-									Integer.parseInt(jersey_num)).getId();
-							current_team.get_player_with_id(assist_id).assist();
 						}
 						showDialog(SUBMIT_ACTION);
 						api_calls.send_made_shot(current_player, (assisted
@@ -1357,6 +1392,7 @@ public class ScoreGameActivity extends Activity {
 							m_type = "free-throw";
 							m_pts = 1;
 							m_fb = false;
+							blocker_id = null;
 							current_team.get_player_with_id(current_player)
 									.missed_ft();
 						} else {

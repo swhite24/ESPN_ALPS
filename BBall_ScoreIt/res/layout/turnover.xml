@@ -4,6 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/turnover_prompt"
+        android:textColor="#FFFFFF"/>
     <Spinner 
         android:id="@+id/turnover_type"
         android:layout_width="wrap_content"

@@ -4,6 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
+    <TextView 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/shot_type_prompt"
+        android:textColor="#FFFFFF" />"
     <Spinner 
         android:visibility="visible"
         android:id="@+id/made_shot_type"
@@ -14,19 +19,19 @@
     <CheckBox
         android:id="@+id/made_shot_fb" 
         android:checked="false"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/fast_break"/>
     <CheckBox 
         android:id="@+id/made_shot_gt"
         android:checked="false"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/goaltending"/>
     <CheckBox 
         android:id="@+id/made_shot_assisted"
         android:checked="false"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/assisted"/>
     <TextView
